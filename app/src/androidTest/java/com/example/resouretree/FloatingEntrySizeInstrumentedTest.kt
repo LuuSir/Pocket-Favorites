@@ -6,7 +6,7 @@ import android.os.SystemClock
 import android.provider.Settings
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -31,7 +31,7 @@ import kotlin.math.roundToInt
 /** Uses the installed overlay service, while the screen host never reads the user's clipboard. */
 @RunWith(AndroidJUnit4::class)
 class FloatingEntrySizeInstrumentedTest {
-    private val compose = createComposeRule()
+    private val compose = createAndroidComposeRule<FloatingEntryTestActivity>()
     // The timeout encloses ActivityScenario launch and rule cleanup, not just the test body.
     @get:Rule val rules: RuleChain = RuleChain.outerRule(Timeout.seconds(90)).around(compose)
 

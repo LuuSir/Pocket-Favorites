@@ -13,6 +13,17 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class ClipboardInboxTest {
+    @Test fun explicitCaptureCanReadHandledOrOwnCopyWithoutEnqueuingMainNavigation() {
+        val inbox = ClipboardDraftInbox(RuntimeEnvironment.getApplication())
+        val clip = ClipData.newPlainText("ResourceTree", "BV123")
+        val captured = requireNotNull(inbox.read(clip, explicit = true))
+        assertNull(inbox.pending.value)
+        inbox.consumed(captured.token)
+        assertEquals(captured, inbox.read(clip, explicit = true))
+        inbox.offer(clip)
+        assertNull(inbox.pending.value)
+        assertNull(inbox.read(ClipData.newPlainText("external", "unmatched"), explicit = true))
+    }
     @Test fun handledClipboardIsNotOfferedAgainEvenAfterInboxRecreation() {
         val context = RuntimeEnvironment.getApplication()
         val inbox = ClipboardDraftInbox(context)

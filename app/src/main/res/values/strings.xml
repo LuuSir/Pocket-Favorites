@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ResourceTree</string>
+    <string name="floating_tile_label">ResourceTree 悬浮窗</string>
 </resources>

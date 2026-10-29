@@ -15,13 +15,13 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.resouretree.MainActivity
+import com.example.resouretree.ClipboardCaptureActivity
 import com.example.resouretree.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/** User-enabled, visible entry point only. Clipboard access belongs exclusively to MainActivity. */
+/** User-enabled overlay; clipboard access happens only in a focused capture window after a tap. */
 class FloatingEntryService : Service() {
     companion object {
         const val ACTION_HOME = "com.example.resouretree.RETURN_HOME"
@@ -34,6 +34,8 @@ class FloatingEntryService : Service() {
 
         fun homeIntent(context: Context) = Intent(context, MainActivity::class.java).setAction(ACTION_HOME)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        fun captureIntent(context: Context) = Intent(context, ClipboardCaptureActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
     private val windows by lazy { getSystemService(WindowManager::class.java) }
@@ -44,6 +46,7 @@ class FloatingEntryService : Service() {
     }
     private var bubble: ImageView? = null
     private var layout: WindowManager.LayoutParams? = null
+    private var touch: FloatingEntryTouchListener? = null
     private fun dp(value: Int) = (value * resources.displayMetrics.density).roundToInt()
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -66,7 +69,7 @@ class FloatingEntryService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             val notification = NotificationCompat.Builder(this, CHANNEL)
                 .setSmallIcon(R.drawable.ic_floating_entry).setContentTitle("ResourceTree 悬浮按钮已开启")
-                .setContentText("点击返回首页；也可在此关闭悬浮按钮")
+                .setContentText("悬浮按钮可读取剪贴板；点此返回首页")
                 .setContentIntent(home).addAction(0, "关闭悬浮按钮", stop).setOngoing(true).setOnlyAlertOnce(true).build()
             if (Build.VERSION.SDK_INT >= 34)
                 startForeground(NOTIFICATION, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
@@ -92,39 +95,24 @@ class FloatingEntryService : Service() {
         val view = ImageView(this).apply {
             setImageResource(R.drawable.ic_launcher_foreground)
             scaleType = ImageView.ScaleType.FIT_CENTER
-            contentDescription = "返回 ResourceTree 首页并读取剪贴板"; isClickable = true
+            isClickable = true
+            contentDescription = "读取剪贴板"
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.rgb(255, 241, 219)) }
             elevation = dp(6).toFloat()
             setOnClickListener {
-                try { startActivity(homeIntent(this@FloatingEntryService)) }
-                catch (_: Exception) { Toast.makeText(this@FloatingEntryService, "无法返回应用，请允许后台弹出界面或从通知打开", Toast.LENGTH_LONG).show() }
+                try { startActivity(captureIntent(this@FloatingEntryService)) }
+                catch (_: Exception) { Toast.makeText(this@FloatingEntryService, "无法打开收集窗口，请允许后台弹出界面", Toast.LENGTH_LONG).show() }
             }
         }
-        var downX = 0f; var downY = 0f; var startX = 0; var startY = 0; var dragging = false
-        val slop = ViewConfiguration.get(this).scaledTouchSlop
-        view.setOnTouchListener { _, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    downX = event.rawX; downY = event.rawY; startX = params.x; startY = params.y; dragging = false; true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - downX; val dy = event.rawY - downY
-                    if (abs(dx) > slop || abs(dy) > slop) dragging = true
-                    if (dragging) {
-                        params.x = startX + dx.roundToInt(); params.y = startY + dy.roundToInt(); clamp(params)
-                        runCatching { windows.updateViewLayout(view, params) }
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP -> {
-                    if (!dragging) view.performClick()
-                    else prefs.edit().putInt("x", params.x).putInt("y", params.y).apply()
-                    true
-                }
-                MotionEvent.ACTION_CANCEL -> { dragging = false; true }
-                else -> false
-            }
-        }
+        var startX = 0; var startY = 0
+        touch = FloatingEntryTouchListener(view,
+            onDown = { startX = params.x; startY = params.y },
+            onDrag = { dx, dy ->
+                params.x = startX + dx.roundToInt(); params.y = startY + dy.roundToInt(); clamp(params)
+                runCatching { windows.updateViewLayout(view, params) }
+            },
+            onDragEnd = { prefs.edit().putInt("x", params.x).putInt("y", params.y).apply() }
+        ).also(view::setOnTouchListener)
         windows.addView(view, params)
         bubble = view; layout = params
     }
@@ -151,6 +139,7 @@ class FloatingEntryService : Service() {
     }
 
     override fun onDestroy() {
+        touch?.cancel(); touch = null
         prefs.unregisterOnSharedPreferenceChangeListener(sizeListener)
         bubble?.let { runCatching { windows.removeView(it) } }
         bubble = null; layout = null; state.value = false

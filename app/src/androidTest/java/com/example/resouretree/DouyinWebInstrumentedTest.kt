@@ -19,13 +19,26 @@ class DouyinWebInstrumentedTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         org.junit.Assume.assumeTrue(context.packageManager.getLaunchIntentForPackage("com.ss.android.ugc.aweme") != null)
-        ActivityScenario.launch<WebPageActivity>(Intent(context, WebPageActivity::class.java)
-            .putExtra("url", "https://v.douyin.com/bdRNyijQu_s/")).use {
-            compose.waitUntil(45000) {
-                SystemClock.sleep(250)
+        try {
+            ActivityScenario.launch<WebPageActivity>(Intent(context, WebPageActivity::class.java)
+                .putExtra("url", "https://v.douyin.com/bdRNyijQu_s/")).use {
+                compose.waitUntil(45000) {
+                    SystemClock.sleep(250)
+                    val fd = instrumentation.uiAutomation.executeShellCommand("dumpsys activity activities")
+                    val state = android.os.ParcelFileDescriptor.AutoCloseInputStream(fd).bufferedReader().use { it.readText() }
+                    state.lineSequence().any { line -> line.contains("topResumedActivity") && line.contains("com.ss.android.ugc.aweme/") }
+                }
+            }
+        } finally {
+            // The external detail task can resume after the WebView closes. Return to this test's
+            // host task before its rule tears down, so it cannot steal the next test's window.
+            context.startActivity(Intent(context, androidx.activity.ComponentActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            compose.waitUntil(10_000) {
                 val fd = instrumentation.uiAutomation.executeShellCommand("dumpsys activity activities")
                 val state = android.os.ParcelFileDescriptor.AutoCloseInputStream(fd).bufferedReader().use { it.readText() }
-                state.lineSequence().any { line -> line.contains("topResumedActivity") && line.contains("com.ss.android.ugc.aweme/") }
+                state.lineSequence().any { line -> line.contains("topResumedActivity") &&
+                    line.contains("${context.packageName}/androidx.activity.ComponentActivity") }
             }
         }
     }

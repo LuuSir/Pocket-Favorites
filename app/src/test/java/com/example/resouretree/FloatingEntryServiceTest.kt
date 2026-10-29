@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.widget.ImageView
 import android.view.WindowManager
 import android.os.Looper
+import android.view.ViewConfiguration
 import com.example.resouretree.overlay.FloatingEntrySettings
 import com.example.resouretree.overlay.FloatingEntryService
 import org.junit.Assert.*
@@ -59,7 +60,7 @@ class FloatingEntryServiceTest {
         } finally { controller.destroy() }
     }
 
-    @Test fun tapReturnsHomeDragDoesNotLaunchAndStopRemovesWindow() {
+    @Test fun tapOpensCaptureDirectlyDragDoesNotLaunchAndStopRemovesWindow() {
         ShadowSettings.setCanDrawOverlays(true)
         val controller = Robolectric.buildService(FloatingEntryService::class.java).create()
         val service = controller.get()
@@ -80,11 +81,10 @@ class FloatingEntryServiceTest {
             assertNull(shadowOf(service).nextStartedActivity)
             touch(MotionEvent.ACTION_DOWN, 20f, 20f)
             touch(MotionEvent.ACTION_UP, 20f, 20f)
-            val home = requireNotNull(shadowOf(service).nextStartedActivity)
-            assertEquals(MainActivity::class.java.name, home.component?.className)
-            assertEquals(FloatingEntryService.ACTION_HOME, home.action)
-            for (flag in listOf(Intent.FLAG_ACTIVITY_NEW_TASK, Intent.FLAG_ACTIVITY_CLEAR_TOP, Intent.FLAG_ACTIVITY_SINGLE_TOP))
-                assertTrue(home.flags and flag != 0)
+            val capture = requireNotNull(shadowOf(service).nextStartedActivity)
+            assertEquals(ClipboardCaptureActivity::class.java.name, capture.component?.className)
+            assertTrue(capture.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
+            assertNull(capture.action)
             val notification = shadowOf(service.getSystemService(NotificationManager::class.java)).getNotification(4201)
             assertNotNull(notification.contentIntent)
             assertEquals("关闭悬浮按钮", notification.actions.single().title)
@@ -93,5 +93,45 @@ class FloatingEntryServiceTest {
         } finally { controller.destroy() }
         assertNull(bubble(service))
         assertFalse(FloatingEntryService.running.value)
+    }
+
+    @Test fun oldLockIsIgnoredAndHoldingCanDragWithoutLaunching() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val controller = Robolectric.buildService(FloatingEntryService::class.java).create()
+        val service = controller.get()
+        // A user upgrading from 0.7 must not inherit an invisible, unclickable bubble.
+        service.getSharedPreferences("floating-entry", 0).edit().putBoolean("locked", true).apply()
+        fun touch(view: ImageView, action: Int, time: Long = 10, x: Float = 20f) {
+            MotionEvent.obtain(0, time, action, x, 20f, 0).also { view.dispatchTouchEvent(it); it.recycle() }
+        }
+        try {
+            service.onStartCommand(Intent(), 0, 1)
+            val view = requireNotNull(bubble(service))
+            assertEquals(1f, view.alpha, .001f)
+            assertTrue(view.isClickable)
+            assertFalse(view.isLongClickable)
+            val held = ViewConfiguration.getLongPressTimeout().toLong() + 10
+            touch(view, MotionEvent.ACTION_DOWN, 0)
+            touch(view, MotionEvent.ACTION_UP, held)
+            assertNull(shadowOf(service).nextStartedActivity)
+            val params = view.layoutParams as WindowManager.LayoutParams
+            val beforeX = params.x
+            touch(view, MotionEvent.ACTION_DOWN, 0)
+            touch(view, MotionEvent.ACTION_MOVE, held, 100f)
+            touch(view, MotionEvent.ACTION_UP, held + 10, 100f)
+            assertTrue(params.x > beforeX)
+            assertNull(shadowOf(service).nextStartedActivity)
+            touch(view, MotionEvent.ACTION_DOWN)
+            touch(view, MotionEvent.ACTION_CANCEL)
+            touch(view, MotionEvent.ACTION_UP)
+            assertNull(shadowOf(service).nextStartedActivity)
+            touch(view, MotionEvent.ACTION_DOWN)
+            touch(view, MotionEvent.ACTION_POINTER_DOWN)
+            touch(view, MotionEvent.ACTION_UP)
+            assertNull(shadowOf(service).nextStartedActivity)
+            touch(view, MotionEvent.ACTION_DOWN)
+            touch(view, MotionEvent.ACTION_UP)
+            assertEquals(ClipboardCaptureActivity::class.java.name, shadowOf(service).nextStartedActivity.component?.className)
+        } finally { controller.destroy() }
     }
 }

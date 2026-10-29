@@ -14,8 +14,8 @@ android {
         applicationId = "com.example.resouretree"
         minSdk = 26
         targetSdk = 37
-        versionCode = 6
-        versionName = "0.6"
+        versionCode = 8
+        versionName = "0.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
