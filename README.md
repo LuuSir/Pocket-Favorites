@@ -6,7 +6,7 @@
 
 ## 开始使用
 
-- 从 [Release 1.0](https://github.com/LuuSir/ResourceTree/releases/tag/v1.0) 下载 `PocketFavorites-v1.0.apk`。已安装 ResourceTree 的用户直接覆盖更新，包名和签名沿用旧版。
+- 从 [Release 1.0](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0) 下载 `PocketFavorites-v1.0.apk`。已安装 ResourceTree 的用户直接覆盖更新，包名和签名沿用旧版。
 - 首页「＋ 新建」添加条目或文件夹；「更多」中置顶和批量整理，长按列表行拖拽排序。
 - 「菜单 → 界面语言」选择「跟随系统 / 简体中文 / English」。默认跟随系统；其他系统语言使用 English。语言切换保留已有内容与规则原文。
 - 点击左上角应用名称切换可缩放图视角；点击文件夹进入，点击条目执行动作；支持平移和展开全部后代。

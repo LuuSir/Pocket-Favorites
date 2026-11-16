@@ -6,7 +6,7 @@ Keep text, links, images, videos, and files from different apps in one local col
 
 ## Get started
 
-1. Download `PocketFavorites-v1.0.apk` from [Release 1.0](https://github.com/LuuSir/ResourceTree/releases/tag/v1.0). Existing ResourceTree installations can update in place with the same package ID and signing certificate.
+1. Download `PocketFavorites-v1.0.apk` from [Release 1.0](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0). Existing ResourceTree installations can update in place with the same package ID and signing certificate.
 2. Tap **＋ New** on Home to create a folder or item. Set its Content and choose the Action to run when tapped.
 3. Open **Menu → App language** and select **Follow system**, **简体中文**, or **English**. The default follows the system, with English as the fallback for other languages. Saved content and clipboard rules retain their original text.
 

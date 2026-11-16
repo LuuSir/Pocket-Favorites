@@ -82,7 +82,7 @@ def main():
     credential = dict(line.split("=", 1) for line in run(git + ["credential", "fill"], input="protocol=https\nhost=github.com\n\n").splitlines() if "=" in line)
     headers = {"Authorization": "Bearer " + credential["password"], "Accept": "application/vnd.github+json",
                "User-Agent": "ResourceTree-release", "X-GitHub-Api-Version": "2022-11-28"}
-    api = "https://api.github.com/repos/LuuSir/ResourceTree"
+    api = "https://api.github.com/repos/LuuSir/Pocket-Favorites"
 
     def call(url, method="GET", data=None, binary=False):
         request_headers = dict(headers)

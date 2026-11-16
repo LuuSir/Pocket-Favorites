@@ -26,10 +26,11 @@ APK 为 `PocketFavorites-v1.0.apk`，8,736,193 bytes，SHA256：`78334ddfe40dbb8
 
 ### Publication
 
-- 已公开发布 [Release v1.0](https://github.com/LuuSir/ResourceTree/releases/tag/v1.0)，标题为「外置收藏夹 / Pocket Favorites v1.0」。
+- 已公开发布 [Release v1.0](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0)，标题为「外置收藏夹 / Pocket Favorites v1.0」。
 - 完整源码和中英文 README 已推送到 `main`；annotated tag `v1.0` 指向提交 `8749c76b054997acadbf4bc3a2a0076926e3348c`。
 - Release 附件仅含 `PocketFavorites-v1.0.apk` 与对应 `.sha256`。服务端 size / digest 校验通过；随后通过公开 browser_download_url 下载完整 APK，大小、SHA256、ZIP CRC 与历史签名证书均通过检查，和手机安装包一致。
 - 私人 Word、真机数据摘要、日志及本地诊断测试不进入本次源码提交；发布引用可达的 Git object 路径已检查，未包含私人 Word。
+- 用户随后将仓库更名为 `LuuSir/Pocket-Favorites`；本地 origin、中英文 README 和发布脚本同步采用新地址，原始下载证据中的旧 URL 保留为历史记录。
 
 原始日志与数据摘要保存在 Git 忽略的 [results directory](../results/resourcetree/20261116-release-1.0-codex/)。目录末尾 `codex` 为此次操作者；后续实验可替换为实际操作者缩写，用户为 `lsf`。
 
