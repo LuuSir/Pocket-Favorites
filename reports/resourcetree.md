@@ -24,13 +24,18 @@ APK 为 `PocketFavorites-v1.0.apk`，8,736,193 bytes，SHA256：`78334ddfe40dbb8
 
 初轮回归的旧应用名断言及 Robolectric API 26 signature permission 授权夹具已更新，之后完整套件通过。生产代码保留非导出的语言广播接收器及 signature permission；测试夹具显式模拟 Android 本来会授予的合并权限。
 
-发布状态将在远端上传和下载校验完成后补充。
+### Publication
+
+- 已公开发布 [Release v1.0](https://github.com/LuuSir/ResourceTree/releases/tag/v1.0)，标题为「外置收藏夹 / Pocket Favorites v1.0」。
+- 完整源码和中英文 README 已推送到 `main`；annotated tag `v1.0` 指向提交 `8749c76b054997acadbf4bc3a2a0076926e3348c`。
+- Release 附件仅含 `PocketFavorites-v1.0.apk` 与对应 `.sha256`。服务端 size / digest 校验通过；随后通过公开 browser_download_url 下载完整 APK，大小、SHA256、ZIP CRC 与历史签名证书均通过检查，和手机安装包一致。
+- 私人 Word、真机数据摘要、日志及本地诊断测试不进入本次源码提交；发布引用可达的 Git object 路径已检查，未包含私人 Word。
 
 原始日志与数据摘要保存在 Git 忽略的 [results directory](../results/resourcetree/20261116-release-1.0-codex/)。目录末尾 `codex` 为此次操作者；后续实验可替换为实际操作者缩写，用户为 `lsf`。
 
 ### Environment and sources
 
-Windows / PowerShell 7.6.10，Android Studio JBR 25.0.2，Android SDK 37，Gradle cache 位于 `D:/Android/GradleCache`。本轮使用 `--offline`，未更改依赖或下载源。2026-11-16 读取本机 sources-current.md（2026-11-01 记录）；GitHub 发布与远端同步使用已授权仓库和 Windows 原生 Git / Python，按调用绕过失效的本地 Git 代理，不改全局代理、DNS 或证书。Git fetch 和 ls-remote 已完成；上传 / 下载验证结果随发布记录补充。
+Windows / PowerShell 7.6.10，Android Studio JBR 25.0.2，Android SDK 37，Gradle cache 位于 `D:/Android/GradleCache`。本轮使用 `--offline`，未更改依赖或下载源。2026-11-16 读取本机 sources-current.md（2026-11-01 记录）；GitHub 发布与远端同步使用指定仓库和 Windows 原生 Git / Python，按调用绕过失效的本地 Git 代理，不改全局代理、DNS 或证书。fetch、push、ls-remote、GitHub API 上传与公开附件完整下载均完成。本次下载结果仅针对指定 v1.0 附件，不推广为其他 GitHub Release 下载的长期源例外。首次 Git commit 自动审批因额度错误未执行；原审批流程重试恢复后完成提交和推送。
 
 ### Remaining acceptance
 
