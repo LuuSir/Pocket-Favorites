@@ -43,7 +43,7 @@ class ClipboardImportInstrumentedTest {
             compose.onNodeWithText("复制并打开 App", substring = false).performScrollTo().assertExists()
             compose.onNodeWithText("返回", substring = false).performClick()
             compose.onNodeWithText("放弃", substring = false).performClick()
-            waitFor("ResourceTree")
+            waitFor(context.getString(R.string.app_name))
             val taobao = "【淘宝】剪贴板真机验证 https://example.test/item"
             compose.runOnIdle { clipboard.setPrimaryClip(ClipData.newPlainText("ClipboardVerification", taobao)) }
             waitFor("新建条目")
@@ -51,7 +51,7 @@ class ClipboardImportInstrumentedTest {
             compose.onNodeWithText("文本内容").assertTextContains(taobao)
             compose.onNodeWithText("返回", substring = false).performClick()
             compose.onNodeWithText("放弃", substring = false).performClick()
-            waitFor("ResourceTree")
+            waitFor(context.getString(R.string.app_name))
             compose.runOnIdle { AndroidClipboardWriter(context).write("BV_SELF_COPY_SHOULD_NOT_IMPORT") }
             compose.waitForIdle()
             compose.onNodeWithText("新建条目", substring = false).assertDoesNotExist()

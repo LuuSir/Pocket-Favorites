@@ -1,5 +1,7 @@
 package com.example.resouretree.overlay
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.app.PendingIntent
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -53,7 +55,7 @@ class FloatingEntryTileService : TileService() {
                 }
             }
         } catch (_: Exception) {
-            Toast.makeText(this, "无法切换悬浮按钮，请到 ResourceTree 的悬浮按钮设置中检查权限", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, AppText.get(R.string.tile_failed), Toast.LENGTH_LONG).show()
         }
         // Never show an optimistic ON state: only the actual overlay service can activate it.
         updateState()
@@ -77,8 +79,8 @@ class FloatingEntryTileService : TileService() {
             val enabled = FloatingEntryService.running.value && Settings.canDrawOverlays(this@FloatingEntryTileService)
             label = getString(com.example.resouretree.R.string.floating_tile_label)
             state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-            contentDescription = "$label，${if (enabled) "已开启" else "已关闭"}"
-            if (Build.VERSION.SDK_INT >= 29) subtitle = if (enabled) "已开启" else "已关闭"
+            contentDescription = AppText.get(R.string.tile_state, label, AppText.get(if (enabled) R.string.on else R.string.off))
+            if (Build.VERSION.SDK_INT >= 29) subtitle = if (enabled) AppText.get(R.string.on) else AppText.get(R.string.off)
             updateTile()
         }
     }
@@ -86,5 +88,10 @@ class FloatingEntryTileService : TileService() {
     override fun onDestroy() {
         scope.cancel()
         super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        updateState()
     }
 }

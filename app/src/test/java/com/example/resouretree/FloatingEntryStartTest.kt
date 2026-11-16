@@ -18,6 +18,11 @@ import java.time.Duration
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [26, 33, 35])
 class FloatingEntryStartTest {
+    @org.junit.Before fun grantCompatibilityReceiverPermission() {
+        // Android grants the merged signature permission; Robolectric API 26 needs it explicitly.
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        org.robolectric.Shadows.shadowOf(app).grantPermissions(app.packageName + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+    }
     @Test fun startsOnlyAfterResumeWaitsForWindowThenFinishesWithoutLaunchingHome() {
         ShadowSettings.setCanDrawOverlays(true)
         val activity = Robolectric.buildActivity(FloatingEntryStartActivity::class.java).create().start()

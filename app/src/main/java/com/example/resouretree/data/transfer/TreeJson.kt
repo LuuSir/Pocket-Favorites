@@ -1,5 +1,7 @@
 package com.example.resouretree.data.transfer
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import com.example.resouretree.domain.model.*
 import kotlinx.serialization.json.*
 import java.util.UUID
@@ -56,7 +58,7 @@ class TreeJson {
     }
 
     fun decode(text: String): ExportFileDto {
-        require(text.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) { "文件超过 10 MB，无法导入" }
+        require(text.toByteArray(Charsets.UTF_8).size <= MAX_BYTES) { AppText.get(R.string.import_too_large) }
         // Bound nesting before parsing, so malicious input cannot exhaust the parser stack.
         var depth = 0; var quoted = false; var escaped = false
         text.forEach { c ->
@@ -64,72 +66,72 @@ class TreeJson {
                 if (escaped) escaped = false else if (c == '\\') escaped = true else if (c == '"') quoted = false
             } else when (c) {
                 '"' -> quoted = true
-                '[', '{' -> { depth++; require(depth <= MAX_DEPTH * 2 + 10) { "JSON 嵌套过深" } }
+                '[', '{' -> { depth++; require(depth <= MAX_DEPTH * 2 + 10) { AppText.get(R.string.json_depth) } }
                 ']', '}' -> depth--
             }
         }
         val root = try { json.parseToJsonElement(text.removePrefix("\uFEFF")) as? JsonObject }
-        catch (e: IllegalArgumentException) { throw IllegalArgumentException("非法 JSON：${e.message?.take(180)}", e) }
-        requireNotNull(root) { "JSON 顶层必须是对象" }
+        catch (e: IllegalArgumentException) { throw IllegalArgumentException(AppText.get(R.string.invalid_json, e.message?.take(180).orEmpty()), e) }
+        requireNotNull(root) { AppText.get(R.string.json_root) }
         val version = (root["schemaVersion"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
-            ?: throw IllegalArgumentException("缺少或无效的 schemaVersion")
-        require(version <= 2) { "该文件来自更新版本的 ResourceTree，当前版本无法导入。" }
-        require(version in 1..2) { "不支持的 schemaVersion：$version" }
+            ?: throw IllegalArgumentException(AppText.get(R.string.json_schema_missing))
+        require(version <= 2) { AppText.get(R.string.json_newer) }
+        require(version in 1..2) { AppText.get(R.string.schema_version, version) }
         var count = 0
         val now = System.currentTimeMillis()
         fun branch(element: JsonElement, level: Int, position: Int): ExportNodeDto {
-            require(level <= MAX_DEPTH) { "目录层级不能超过 100 层" }
-            require(++count <= MAX_NODES) { "一次最多导入 10000 个节点" }
-            val obj = element as? JsonObject ?: throw IllegalArgumentException("节点必须是对象")
+            require(level <= MAX_DEPTH) { AppText.get(R.string.tree_too_deep) }
+            require(++count <= MAX_NODES) { AppText.get(R.string.import_node_limit) }
+            val obj = element as? JsonObject ?: throw IllegalArgumentException(AppText.get(R.string.json_node))
             val type = obj.string("type", required = true)
-            require(type == "folder" || type == "item") { "不支持的节点类型：$type" }
+            require(type == "folder" || type == "item") { AppText.get(R.string.node_type_invalid, type) }
             val name = obj.string("name", required = true).trim()
-            require(name.isNotBlank()) { "节点名称不能为空" }
+            require(name.isNotBlank()) { AppText.get(R.string.json_node_name) }
             val children = obj.array("children", required = false)
-            require(type == "folder" || children.isEmpty()) { "条目不能包含 children：$name" }
+            require(type == "folder" || children.isEmpty()) { AppText.get(R.string.item_children, name) }
             val tags = obj.array("tags", required = false).map {
-                require(it is JsonPrimitive && it.isString) { "tags 必须为字符串数组：$name" }
+                require(it is JsonPrimitive && it.isString) { AppText.get(R.string.tags_invalid, name) }
                 it.content
             }
             val actionObject = obj["action"]?.takeUnless { it == JsonNull }?.let {
-                require(it is JsonObject) { "action 必须为对象：$name" }; it
+                require(it is JsonObject) { AppText.get(R.string.action_invalid, name) }; it
             }
             // All legacy fields are consumed here; the returned DTO always has v2 semantics.
             val content = if (version == 1) {
                 val legacy = obj.string("content")
                 ResourceContent(text = legacy.ifEmpty { actionObject?.string("text").orEmpty() })
             } else if (type == "folder") ResourceContent() else {
-                val c = obj["content"] as? JsonObject ?: throw IllegalArgumentException("content 必须为对象：$name")
+                val c = obj["content"] as? JsonObject ?: throw IllegalArgumentException(AppText.get(R.string.content_invalid, name))
                 val kind = c.string("type", required = true)
                 val contentType = ContentType.entries.firstOrNull { it.name == kind }
-                    ?: throw IllegalArgumentException("不支持的内容类型：$kind")
+                    ?: throw IllegalArgumentException(AppText.get(R.string.content_type_invalid, kind))
                 if (contentType == ContentType.TEXT) ResourceContent(text = c.string("text"))
                 else {
                     val path = c.string("path", required = true)
                     val mime = c.string("mimeType", required = true)
-                    require(path.isNotBlank()) { "媒体内容缺少 path：$name" }
-                    require(validMime(contentType, mime)) { "媒体 MIME 类型不正确：$name" }
+                    require(path.isNotBlank()) { AppText.get(R.string.media_path_missing, name) }
+                    require(validMime(contentType, mime)) { AppText.get(R.string.media_mime_named, name) }
                     ResourceContent(contentType, path = path, mimeType = mime)
                 }
             }
             val action = actionObject?.let {
                 val actionType = it.string("type", required = true)
-                require(ActionType.entries.any { a -> a.name == actionType }) { "不支持的动作：$actionType" }
+                require(ActionType.entries.any { a -> a.name == actionType }) { AppText.get(R.string.action_type_invalid, actionType) }
                 val target = it.string(if (version == 1) "packageName" else "target")
                 if (actionType == "LAUNCH_APP" || actionType == "COPY_AND_LAUNCH")
-                    require(target.isNotBlank()) { "启动应用的动作缺少 target：$name" }
+                    require(target.isNotBlank()) { AppText.get(R.string.target_missing, name) }
                 if (actionType == "OPEN_WEBVIEW") {
-                    require(content.type == ContentType.TEXT && webUrl(content.text) != null) { "网页动作需要有效的 http:// 或 https:// 网址：$name" }
+                    require(content.type == ContentType.TEXT && webUrl(content.text) != null) { AppText.get(R.string.web_url_named, name) }
                 }
                 ExportActionDto(actionType, if (actionType == "OPEN_WEBVIEW") "" else target)
             }
             val created = obj.number("createdAt", now)
             val pinned = obj["isPinned"]?.let {
-                require(it is JsonPrimitive && !it.isString && it.booleanOrNull != null) { "isPinned 必须为布尔值" }
+                require(it is JsonPrimitive && !it.isString && it.booleanOrNull != null) { AppText.get(R.string.json_pinned) }
                 it.boolean
             } ?: false
             return ExportNodeDto(obj.string("id").takeIf(String::isNotBlank), type, name,
-                obj.number("sortOrder", position.toLong()).also { require(it in 0..Int.MAX_VALUE.toLong()) { "sortOrder 超出范围" } }.toInt(),
+                obj.number("sortOrder", position.toLong()).also { require(it in 0..Int.MAX_VALUE.toLong()) { AppText.get(R.string.json_sort) } }.toInt(),
                 created, obj.number("updatedAt", created), content, tags, action,
                 children.mapIndexed { index, child -> branch(child, level + 1, index) }, pinned)
         }
@@ -137,7 +139,7 @@ class TreeJson {
     }
 
     fun toNodes(file: ExportFileDto, existingIds: Set<String> = emptySet()): List<ResourceNode> {
-        require(file.schemaVersion == 2) { "不支持的 schemaVersion" }
+        require(file.schemaVersion == 2) { AppText.get(R.string.json_schema_unsupported) }
         val used = existingIds.toMutableSet()
         val result = mutableListOf<ResourceNode>()
         fun branch(dto: ExportNodeDto, parentId: String?) {
@@ -159,20 +161,20 @@ class TreeJson {
     private fun JsonObject.string(key: String, required: Boolean = false): String {
         val value = this[key]
         if (value == null || value == JsonNull) {
-            require(!required) { "缺少字段：$key" }; return ""
+            require(!required) { AppText.get(R.string.field_missing, key) }; return ""
         }
-        require(value is JsonPrimitive && value.isString) { "$key 必须为字符串" }
+        require(value is JsonPrimitive && value.isString) { AppText.get(R.string.field_string, key) }
         return value.content
     }
     private fun JsonObject.array(key: String, required: Boolean): JsonArray {
         val value = this[key]
-        if (value == null) { require(!required) { "缺少字段：$key" }; return JsonArray(emptyList()) }
-        require(value is JsonArray) { "$key 必须为数组" }
+        if (value == null) { require(!required) { AppText.get(R.string.field_missing, key) }; return JsonArray(emptyList()) }
+        require(value is JsonArray) { AppText.get(R.string.field_array, key) }
         return value
     }
     private fun JsonObject.number(key: String, default: Long): Long {
         val value = this[key] ?: return default
-        require(value is JsonPrimitive && !value.isString && value.longOrNull != null) { "$key 必须为整数" }
-        return requireNotNull(value.longOrNull).also { require(it >= 0) { "$key 不能为负数" } }
+        require(value is JsonPrimitive && !value.isString && value.longOrNull != null) { AppText.get(R.string.field_integer, key) }
+        return requireNotNull(value.longOrNull).also { require(it >= 0) { AppText.get(R.string.field_negative, key) } }
     }
 }

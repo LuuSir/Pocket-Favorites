@@ -9,6 +9,10 @@ import com.example.resouretree.domain.action.*
 import com.example.resouretree.data.apps.AndroidAppCatalog
 
 class ResourceTreeApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        com.example.resouretree.localization.AppText.initialize(this)
+    }
     val database by lazy { Room.databaseBuilder(this, ResourceDatabase::class.java, "resource-tree.db")
         .addMigrations(ResourceDatabase.MIGRATION_1_2, ResourceDatabase.MIGRATION_2_3).build() }
     val repository by lazy { NodeRepository(database) }

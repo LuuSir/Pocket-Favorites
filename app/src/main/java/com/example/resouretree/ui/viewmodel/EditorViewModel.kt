@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.viewmodel
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.net.Uri
 import com.example.resouretree.data.transfer.DocumentStore
 import androidx.lifecycle.SavedStateHandle
@@ -37,7 +39,7 @@ class EditorViewModel(
     init {
         viewModelScope.launch {
             try {
-                original = id?.let { requireNotNull(repository.node(it)) { "条目已被删除" } }
+                original = id?.let { requireNotNull(repository.node(it)) { AppText.get(R.string.item_deleted) } }
                 val node = original
                 mutable.value = EditorState(loading = false, type = node?.type ?: type,
                     name = handle["name"] ?: node?.name.orEmpty(), content = ResourceContent(
@@ -69,7 +71,7 @@ class EditorViewModel(
                 mutable.value = mutable.value.copy(apps = apps, appsLoading = false)
             } catch (e: CancellationException) { throw e }
             catch (_: Exception) {
-                mutable.value = mutable.value.copy(appsLoading = false, appsError = "无法读取应用列表。请允许系统的应用列表访问提示，然后重试。")
+                mutable.value = mutable.value.copy(appsLoading = false, appsError = AppText.get(R.string.apps_failed))
             }
         }
     }
@@ -97,29 +99,29 @@ class EditorViewModel(
         viewModelScope.launch {
             try { val content = documents.importMedia(uri, type); change { it.copy(content = content) } }
             catch (e: CancellationException) { throw e }
-            catch (e: Exception) { mutable.value = mutable.value.copy(error = e.message ?: "读取文件失败") }
+            catch (e: Exception) { mutable.value = mutable.value.copy(error = e.message ?: AppText.get(R.string.read_failed)) }
             finally { mutable.value = mutable.value.copy(importingMedia = false) }
         }
     }
-    fun mediaError() { mutable.value = mutable.value.copy(error = "无法打开系统文件选择器") }
+    fun mediaError() { mutable.value = mutable.value.copy(error = AppText.get(R.string.picker_failed)) }
     fun save() {
         val form = mutable.value
         if (form.loading || form.saving || form.importingMedia || form.saved || form.loadFailed) return
-        if (form.name.isBlank()) { mutable.value = form.copy(error = "请输入名称"); return }
+        if (form.name.isBlank()) { mutable.value = form.copy(error = AppText.get(R.string.enter_name)); return }
         if (form.type == NodeType.ITEM && form.actionType == ActionType.OPEN_WEBVIEW &&
             (form.content.type != ContentType.TEXT || webUrl(form.content.text) == null)) {
-            mutable.value = form.copy(error = "请输入完整的 http:// 或 https:// 网址"); return
+            mutable.value = form.copy(error = AppText.get(R.string.enter_url)); return
         }
         val launch = form.type == NodeType.ITEM && form.actionType in listOf(ActionType.LAUNCH_APP, ActionType.COPY_AND_LAUNCH)
         if (launch && !Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+").matches(form.target.trim())) {
-            mutable.value = form.copy(error = "请选择目标应用"); return
+            mutable.value = form.copy(error = AppText.get(R.string.choose_target)); return
         }
         if (form.type == NodeType.ITEM && form.content.type != ContentType.TEXT) {
             if (form.content.path.isBlank() || !validMime(form.content.type, form.content.mimeType)) {
-                mutable.value = form.copy(error = "请选择媒体文件并填写有效的 MIME 类型"); return
+                mutable.value = form.copy(error = AppText.get(R.string.choose_valid_media)); return
             }
             if (form.actionType in listOf(ActionType.COPY, ActionType.COPY_AND_LAUNCH)) {
-                mutable.value = form.copy(error = "媒体内容请使用分享动作"); return
+                mutable.value = form.copy(error = AppText.get(R.string.media_use_share)); return
             }
         }
         mutable.value = form.copy(saving = true)
@@ -132,7 +134,7 @@ class EditorViewModel(
                 repository.save(node, isNew = id == null)
                 mutable.value = mutable.value.copy(saving = false, saved = true)
             } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { mutable.value = mutable.value.copy(saving = false, error = e.message ?: "保存失败") }
+            catch (e: Exception) { mutable.value = mutable.value.copy(saving = false, error = e.message ?: AppText.get(R.string.save_failed)) }
         }
     }
 }

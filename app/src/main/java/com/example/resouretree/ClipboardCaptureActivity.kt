@@ -1,9 +1,11 @@
 package com.example.resouretree
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.content.ClipboardManager
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import com.example.resouretree.localization.LocalizedActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +29,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /** Visible, user-initiated clipboard window. Its separate task preserves any open MainActivity editor. */
-class ClipboardCaptureActivity : ComponentActivity() {
+class ClipboardCaptureActivity : LocalizedActivity() {
     private var seed by mutableStateOf<Bundle?>(null)
     private var attempted = false
 
@@ -42,7 +44,7 @@ class ClipboardCaptureActivity : ComponentActivity() {
                 Surface(Modifier.fillMaxSize(), shape = RoundedCornerShape(20.dp)) {
                     val initial = seed
                     if (initial == null) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("正在读取剪贴板…")
+                        Text(AppText.get(R.string.reading_clipboard))
                     } else {
                         val editor: EditorViewModel = viewModel(factory = viewModelFactory { initializer {
                             val handle = createSavedStateHandle()
@@ -85,7 +87,7 @@ class ClipboardCaptureActivity : ComponentActivity() {
         val app = application as ResourceTreeApplication
         val clip = try { getSystemService(ClipboardManager::class.java).primaryClip }
         catch (_: SecurityException) {
-            Toast.makeText(this, "系统未允许读取剪贴板", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, AppText.get(R.string.clipboard_denied), Toast.LENGTH_SHORT).show()
             finishAndRemoveTask(); return
         }
         val draft = app.clipboardDrafts.read(clip, explicit = true)

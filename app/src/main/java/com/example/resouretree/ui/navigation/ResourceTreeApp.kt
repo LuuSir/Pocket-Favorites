@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.navigation
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,10 +53,10 @@ fun ResourceTreeApp(app: ResourceTreeApplication, homeRequest: Int = 0, onHomeHa
     }
     if (confirmHome) AlertDialog(
         onDismissRequest = { confirmHome = false; onHomeHandled() },
-        title = { Text("返回首页？") },
-        text = { Text("返回首页会放弃当前未保存的编辑。") },
-        confirmButton = { TextButton(onClick = { returnHome() }) { Text("放弃并返回") } },
-        dismissButton = { TextButton(onClick = { confirmHome = false; onHomeHandled() }) { Text("继续编辑") } }
+        title = { Text(AppText.get(R.string.return_home)) },
+        text = { Text(AppText.get(R.string.return_home_hint)) },
+        confirmButton = { TextButton(onClick = { returnHome() }) { Text(AppText.get(R.string.discard_return)) } },
+        dismissButton = { TextButton(onClick = { confirmHome = false; onHomeHandled() }) { Text(AppText.get(R.string.keep_editing)) } }
     )
     LaunchedEffect(pending?.token, current?.destination?.route, rules, homeRequest) {
         if (homeRequest != 0) return@LaunchedEffect
@@ -84,11 +86,15 @@ fun ResourceTreeApp(app: ResourceTreeApplication, homeRequest: Int = 0, onHomeHa
                     onCreate = { type, parent -> nav.navigate("editor?type=${type.name}&parent=${Uri.encode(parent.orEmpty())}") },
                     onEdit = { node -> nav.navigate("editor?id=${Uri.encode(node.id)}&type=${node.type.name}") },
                     onClipboardRules = { nav.navigate("clipboard-rules") },
-                    onFloatingEntry = { nav.navigate("floating-entry") })
+                    onFloatingEntry = { nav.navigate("floating-entry") },
+                    onLanguage = { nav.navigate("language") })
             }
         }
         composable("floating-entry") {
             FloatingEntryScreen(onBack = { nav.popBackStack() })
+        }
+        composable("language") {
+            LanguageScreen(onBack = { nav.popBackStack() })
         }
         composable("clipboard-rules") {
             ClipboardRulesScreen(app.clipboardRules, onBack = { nav.popBackStack() })

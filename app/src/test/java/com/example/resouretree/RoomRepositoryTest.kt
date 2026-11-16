@@ -21,6 +21,7 @@ class RoomRepositoryTest {
     private lateinit var db: ResourceDatabase
     private lateinit var repository: NodeRepository
     @Before fun setup() {
+        com.example.resouretree.localization.AppText.initialize(org.robolectric.RuntimeEnvironment.getApplication())
         db = Room.inMemoryDatabaseBuilder(RuntimeEnvironment.getApplication(), ResourceDatabase::class.java).build()
         repository = NodeRepository(db)
     }

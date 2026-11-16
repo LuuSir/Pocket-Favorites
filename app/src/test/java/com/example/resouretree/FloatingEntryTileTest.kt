@@ -24,6 +24,11 @@ import org.robolectric.shadows.ShadowTileService
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [26, 33, 35], shadows = [FloatingEntryTileTest.TileHostShadow::class])
 class FloatingEntryTileTest {
+    @org.junit.Before fun grantCompatibilityReceiverPermission() {
+        // Android grants the merged signature permission; Robolectric API 26 needs it explicitly.
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        org.robolectric.Shadows.shadowOf(app).grantPermissions(app.packageName + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+    }
     // Robolectric 4.16's TileService shadow does not inherit ShadowService and lacks
     // the API 34 PendingIntent overload. Supply only the missing SystemUI plumbing.
     @Implements(TileService::class)

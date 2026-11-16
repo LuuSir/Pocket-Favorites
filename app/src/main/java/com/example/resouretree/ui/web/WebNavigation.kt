@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.web
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.content.Intent
 import android.net.Uri
 import com.example.resouretree.domain.model.webUrl
@@ -23,7 +25,7 @@ class WebNavigation(
         if (hasGesture) reset()
         if (url in opened) return true // Some H5 pages retry their automatic jump after returning from the app.
         val link = parseAppLink(url)
-        if (link == null) { showError("此链接无法打开，已保留当前网页"); return true }
+        if (link == null) { showError(AppText.get(R.string.link_invalid)); return true }
         try {
             launch(link.intent)
             opened += url
@@ -40,7 +42,7 @@ class WebNavigation(
         if (url != null && fallbacks.add(url)) {
             showError(null)
             loadFallback(url)
-        } else showError("未能打开对应应用，已保留当前网页；请确认应用已安装且允许跳转")
+        } else showError(AppText.get(R.string.link_app_missing))
     }
 }
 

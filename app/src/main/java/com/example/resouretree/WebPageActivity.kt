@@ -1,10 +1,12 @@
 package com.example.resouretree
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.webkit.*
 import android.view.ViewGroup
-import androidx.activity.ComponentActivity
+import com.example.resouretree.localization.LocalizedActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -20,7 +22,7 @@ import com.example.resouretree.ui.theme.ResoureTreeTheme
 import com.example.resouretree.ui.web.WebNavigation
 
 /** Private activity: URLs come from item content, never an external exported intent. */
-class WebPageActivity : ComponentActivity() {
+class WebPageActivity : LocalizedActivity() {
     private var web: WebView? = null
     private var navigation: WebNavigation? = null
 
@@ -39,11 +41,11 @@ class WebPageActivity : ComponentActivity() {
             BackHandler { back() }
             ResoureTreeTheme {
                 Scaffold(topBar = {
-                    TopAppBar(title = { Text("网页", maxLines = 1) },
-                        navigationIcon = { TextButton(onClick = { back() }) { Text("返回") } },
+                    TopAppBar(title = { Text(AppText.get(R.string.web_page), maxLines = 1) },
+                        navigationIcon = { TextButton(onClick = { back() }) { Text(AppText.get(R.string.back)) } },
                         actions = {
-                            TextButton(onClick = { error = null; navigation?.reset(); web?.reload() }) { Text("刷新") }
-                            TextButton(onClick = { finish() }) { Text("关闭") }
+                            TextButton(onClick = { error = null; navigation?.reset(); web?.reload() }) { Text(AppText.get(R.string.refresh)) }
+                            TextButton(onClick = { finish() }) { Text(AppText.get(R.string.close)) }
                         })
                 }) { padding ->
                     Column(Modifier.padding(padding).fillMaxSize()) {
@@ -80,13 +82,13 @@ class WebPageActivity : ComponentActivity() {
                                     override fun onPageFinished(view: WebView, url: String) { address = url }
                                     override fun onReceivedError(view: WebView, request: WebResourceRequest, detail: WebResourceError) {
                                         if (request.isForMainFrame) error = if (detail.description.toString().contains("ERR_CLEARTEXT_NOT_PERMITTED"))
-                                            "系统禁止明文 HTTP，请将条目网址改为网站提供的 HTTPS 地址" else "网页加载失败，请检查网络或网址后刷新"
+                                            AppText.get(R.string.http_blocked) else AppText.get(R.string.page_failed)
                                     }
                                     override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: WebResourceResponse) {
-                                        if (request.isForMainFrame) error = "网站返回错误（${response.statusCode}），可稍后刷新"
+                                        if (request.isForMainFrame) error = AppText.get(R.string.http_error, response.statusCode)
                                     }
                                     override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, sslError: android.net.http.SslError) {
-                                        handler.cancel(); error = "网站安全证书无效，已停止加载"
+                                        handler.cancel(); error = AppText.get(R.string.certificate_invalid)
                                     }
                                 }
                                 if (savedInstanceState?.getBundle("web")?.let(view::restoreState) == null) view.loadUrl(initialUrl)

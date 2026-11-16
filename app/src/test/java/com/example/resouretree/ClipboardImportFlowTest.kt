@@ -80,7 +80,7 @@ class ClipboardImportFlowTest {
         waitFor("淘宝分享")
         compose.onNodeWithText("文本内容").assertTextContains(text)
         compose.onNodeWithText("保存", substring = false).performClick()
-        waitFor("ResourceTree")
+        waitFor("外置收藏夹")
         val saved = runBlocking { app.repository.all.first().single { it.name == "淘宝分享" } }
         assertNull(saved.parentId); assertEquals(text, saved.content.text)
         assertEquals(ResourceAction(ActionType.COPY_AND_LAUNCH, "com.taobao.taobao"), saved.action)

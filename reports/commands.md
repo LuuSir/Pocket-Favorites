@@ -20,7 +20,7 @@ $env:GRADLE_USER_HOME = 'D:\Android\GradleCache'
 
 ```powershell
 & 'D:\Android\SDK\platform-tools\adb.exe' devices
-& 'D:\Android\SDK\platform-tools\adb.exe' install -r 'build/releases/ResourceTree-v0.9.apk'
+& 'D:\Android\SDK\platform-tools\adb.exe' install -r 'build/releases/PocketFavorites-v1.0.apk'
 ```
 
 `devices` 应列出 `device`；`unauthorized` 需在手机确认 USB 调试。`install -r` 使用同签名包覆盖安装，保留数据，成功输出 `Success`。
@@ -44,7 +44,7 @@ $env:GRADLE_USER_HOME = 'D:\Android\GradleCache'
 发布前检查（不会上传）：
 
 ```powershell
-python tools/publish_release.py --tag v0.9 --apk build/releases/ResourceTree-v0.9.apk --build-tools D:/Android/SDK/build-tools/36.0.0 --check-only
+python scripts/publish_release.py --tag v1.0 --apk build/releases/PocketFavorites-v1.0.apk --build-tools D:/Android/SDK/build-tools/36.0.0 --check-only
 ```
 
 | 发布参数 | 含义 |
@@ -56,4 +56,4 @@ python tools/publish_release.py --tag v0.9 --apk build/releases/ResourceTree-v0.
 | `--notes` | 发布说明 Markdown 文件；实际上传时必填 |
 | `--direct-git` | 仅此次调用忽略 Git 代理；当前本机旧代理不可用时使用 |
 
-实际发布及升级摘要参数见 [完整教程](workflows/release.md)。不要将手机密码、签名密码或 GitHub 令牌写入文档或脚本。
+实际发布及升级摘要参数见 [完整教程](../workflows/release.md)。不要将手机密码、签名密码或 GitHub 令牌写入文档或脚本。

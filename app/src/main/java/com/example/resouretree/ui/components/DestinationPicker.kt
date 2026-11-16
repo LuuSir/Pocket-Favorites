@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.components
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,11 +32,11 @@ fun DestinationPicker(
     AlertDialog(
         modifier = Modifier.fillMaxWidth().testTag("destination-dialog"),
         onDismissRequest = onDismiss,
-        title = { Text("${if (copy) "复制" else "移动"} $count 项到…") },
+        title = { Text(AppText.quantity(if (copy) R.plurals.copy_count_to else R.plurals.move_count_to, count)) },
         text = {
             Column(Modifier.fillMaxWidth()) {
                 Row(Modifier.fillMaxWidth().horizontalScroll(breadcrumbScroll).testTag("destination-breadcrumb")) {
-                    TextButton(enabled = !busy, onClick = { location = null }) { Text("首页") }
+                    TextButton(enabled = !busy, onClick = { location = null }) { Text(AppText.get(R.string.home)) }
                     breadcrumb.forEach { folder ->
                         Text("›", modifier = Modifier.padding(top = 12.dp))
                         TextButton(enabled = !busy, onClick = { location = folder.id }) {
@@ -43,7 +45,7 @@ fun DestinationPicker(
                     }
                 }
                 HorizontalDivider()
-                if (current != null) TextButton(enabled = !busy, onClick = { location = breadcrumb.dropLast(1).lastOrNull()?.id }) { Text("上一级") }
+                if (current != null) TextButton(enabled = !busy, onClick = { location = breadcrumb.dropLast(1).lastOrNull()?.id }) { Text(AppText.get(R.string.parent_folder)) }
                 LazyColumn(Modifier.fillMaxWidth().heightIn(min = 160.dp, max = 320.dp).testTag("destination-folders")) {
                     items(folders, key = { it.id }) { folder ->
                         TextButton(enabled = !busy, onClick = { location = folder.id }, modifier = Modifier.fillMaxWidth().testTag("destination-folder-${folder.id}")) {
@@ -51,11 +53,11 @@ fun DestinationPicker(
                             Text("›")
                         }
                     }
-                    if (folders.isEmpty()) item { Text("没有子文件夹，可选择当前位置", modifier = Modifier.padding(vertical = 20.dp)) }
+                    if (folders.isEmpty()) item { Text(AppText.get(R.string.no_subfolders), modifier = Modifier.padding(vertical = 20.dp)) }
                 }
             }
         },
-        confirmButton = { TextButton(enabled = !busy, onClick = { onSelect(current) }) { Text(if (copy) "复制到此处" else "移动到此处") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+        confirmButton = { TextButton(enabled = !busy, onClick = { onSelect(current) }) { Text(if (copy) AppText.get(R.string.copy_here) else AppText.get(R.string.move_here)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(AppText.get(R.string.cancel)) } }
     )
 }

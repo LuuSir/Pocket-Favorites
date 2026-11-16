@@ -7,6 +7,7 @@ import com.example.resouretree.data.transfer.TreeJson
 import org.junit.Assert.*
 import org.junit.Test
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
 class WebActionTest {
     @Test fun opensContentWithoutCopyOrTargetLaunch() {
         var opened = ""

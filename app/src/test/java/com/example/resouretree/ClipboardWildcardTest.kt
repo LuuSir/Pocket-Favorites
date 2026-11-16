@@ -4,6 +4,7 @@ import com.example.resouretree.domain.model.*
 import org.junit.Assert.*
 import org.junit.Test
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
 class ClipboardWildcardTest {
     private fun rule(id: String, pattern: String, type: ClipboardMatchType = ClipboardMatchType.WILDCARD) =
         ClipboardRule(id, pattern, id, listOf("com.test.app"), matchType = type)

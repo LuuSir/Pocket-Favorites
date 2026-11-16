@@ -7,6 +7,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.util.UUID
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
 class TreeAndJsonTest {
     private val codec = TreeJson()
     private fun node(parent: String? = null, type: NodeType = NodeType.FOLDER, name: String = "目录") =

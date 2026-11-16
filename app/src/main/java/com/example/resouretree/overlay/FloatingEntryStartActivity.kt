@@ -1,12 +1,14 @@
 package com.example.resouretree.overlay
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
+import com.example.resouretree.localization.LocalizedActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,14 +19,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /** User-visible QS launch window: start the overlay only after this activity is resumed. */
-class FloatingEntryStartActivity : ComponentActivity() {
+class FloatingEntryStartActivity : LocalizedActivity() {
     private var starting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFinishOnTouchOutside(false)
         setContentView(TextView(this).apply {
-            text = "正在开启悬浮窗…"
+            text = AppText.get(R.string.overlay_starting)
             gravity = Gravity.CENTER
             setPadding(48, 48, 48, 48)
         })
@@ -43,7 +45,7 @@ class FloatingEntryStartActivity : ComponentActivity() {
 
     private fun startOverlay() {
         if (!Settings.canDrawOverlays(this)) {
-            fail("尚未允许悬浮窗权限，请在 ResourceTree 的悬浮按钮设置中授权")
+            fail(AppText.get(R.string.overlay_permission_missing))
             return
         }
         if (FloatingEntryService.running.value) {
@@ -60,11 +62,11 @@ class FloatingEntryStartActivity : ComponentActivity() {
                         .first { (running, error) -> running || error != null }
                 }
                 if (ready?.first == true) finishAndRemoveTask()
-                else fail(ready?.second ?: "悬浮窗启动超时，请检查系统的后台运行限制后重试")
+                else fail(ready?.second ?: AppText.get(R.string.overlay_timeout))
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
-                fail("无法开启悬浮窗，请检查悬浮窗权限和系统的后台运行限制")
+                fail(AppText.get(R.string.overlay_start_failed))
             }
         }
     }

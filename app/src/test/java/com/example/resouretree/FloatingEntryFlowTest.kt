@@ -79,7 +79,7 @@ class FloatingEntryFlowTest {
         compose.onNodeWithText("悬浮按钮").performClick()
         compose.onNodeWithText("开启悬浮按钮").assertExists()
         returnHome()
-        waitFor("ResourceTree")
+        waitFor("外置收藏夹")
         compose.onNodeWithText("开启悬浮按钮").assertDoesNotExist()
     }
 }

@@ -14,8 +14,8 @@ android {
         applicationId = "com.example.resouretree"
         minSdk = 26
         targetSdk = 37
-        versionCode = 9
-        versionName = "0.9"
+        versionCode = 10
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,6 +45,7 @@ android {
     buildFeatures {
         compose = true
     }
+    bundle { language { enableSplit = false } }
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.all {

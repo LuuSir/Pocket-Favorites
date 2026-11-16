@@ -1,5 +1,7 @@
 package com.example.resouretree.overlay
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.app.*
 import android.content.*
 import android.content.pm.ServiceInfo
@@ -14,9 +16,10 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import com.example.resouretree.localization.AppLanguages
 import com.example.resouretree.MainActivity
 import com.example.resouretree.ClipboardCaptureActivity
-import com.example.resouretree.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.roundToInt
@@ -47,6 +50,9 @@ class FloatingEntryService : Service() {
     private var bubble: ImageView? = null
     private var layout: WindowManager.LayoutParams? = null
     private var touch: FloatingEntryTouchListener? = null
+    private val languageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) { refreshLanguage() }
+    }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).roundToInt()
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -54,6 +60,7 @@ class FloatingEntryService : Service() {
     override fun onCreate() {
         super.onCreate()
         prefs.registerOnSharedPreferenceChangeListener(sizeListener)
+        ContextCompat.registerReceiver(this, languageReceiver, IntentFilter(AppLanguages.ACTION_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -62,15 +69,7 @@ class FloatingEntryService : Service() {
         }
         if (bubble != null) return START_NOT_STICKY
         try {
-            val notifications = getSystemService(NotificationManager::class.java)
-            notifications.createNotificationChannel(NotificationChannel(CHANNEL, "悬浮按钮", NotificationManager.IMPORTANCE_LOW))
-            val home = PendingIntent.getActivity(this, 0, homeIntent(this), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            val stop = PendingIntent.getService(this, 1, Intent(this, FloatingEntryService::class.java).setAction(ACTION_STOP),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            val notification = NotificationCompat.Builder(this, CHANNEL)
-                .setSmallIcon(R.drawable.ic_floating_entry).setContentTitle("ResourceTree 悬浮按钮已开启")
-                .setContentText("悬浮按钮可读取剪贴板；点此返回首页")
-                .setContentIntent(home).addAction(0, "关闭悬浮按钮", stop).setOngoing(true).setOnlyAlertOnce(true).build()
+            val notification = notification()
             if (Build.VERSION.SDK_INT >= 34)
                 startForeground(NOTIFICATION, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             else startForeground(NOTIFICATION, notification)
@@ -78,10 +77,27 @@ class FloatingEntryService : Service() {
             error.value = null
             state.value = true
         } catch (_: Exception) {
-            error.value = "悬浮按钮启动失败，请检查悬浮窗权限后重试"
+            error.value = AppText.get(R.string.overlay_failed)
             stopSelf()
         }
         return START_NOT_STICKY
+    }
+
+    private fun notification(): Notification {
+        val notifications = getSystemService(NotificationManager::class.java)
+        notifications.createNotificationChannel(NotificationChannel(CHANNEL, AppText.get(R.string.floating_button), NotificationManager.IMPORTANCE_LOW))
+        val home = PendingIntent.getActivity(this, 0, homeIntent(this), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val stop = PendingIntent.getService(this, 1, Intent(this, FloatingEntryService::class.java).setAction(ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return NotificationCompat.Builder(this, CHANNEL)
+            .setSmallIcon(R.drawable.ic_floating_entry).setContentTitle(AppText.get(R.string.overlay_notification_title))
+            .setContentText(AppText.get(R.string.overlay_notification_body))
+            .setContentIntent(home).addAction(0, AppText.get(R.string.disable_overlay), stop).setOngoing(true).setOnlyAlertOnce(true).build()
+    }
+
+    private fun refreshLanguage() {
+        bubble?.contentDescription = AppText.get(R.string.read_clipboard)
+        if (bubble != null) getSystemService(NotificationManager::class.java).notify(NOTIFICATION, notification())
     }
 
     private fun showBubble() {
@@ -96,12 +112,12 @@ class FloatingEntryService : Service() {
             setImageResource(R.drawable.ic_launcher_foreground)
             scaleType = ImageView.ScaleType.FIT_CENTER
             isClickable = true
-            contentDescription = "读取剪贴板"
+            contentDescription = AppText.get(R.string.read_clipboard)
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.rgb(255, 241, 219)) }
             elevation = dp(6).toFloat()
             setOnClickListener {
                 try { startActivity(captureIntent(this@FloatingEntryService)) }
-                catch (_: Exception) { Toast.makeText(this@FloatingEntryService, "无法打开收集窗口，请允许后台弹出界面", Toast.LENGTH_LONG).show() }
+                catch (_: Exception) { Toast.makeText(this@FloatingEntryService, AppText.get(R.string.capture_failed), Toast.LENGTH_LONG).show() }
             }
         }
         var startX = 0; var startY = 0
@@ -134,6 +150,7 @@ class FloatingEntryService : Service() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        refreshLanguage()
         val view = bubble ?: return
         layout?.let { clamp(it); runCatching { windows.updateViewLayout(view, it) } }
     }
@@ -141,6 +158,7 @@ class FloatingEntryService : Service() {
     override fun onDestroy() {
         touch?.cancel(); touch = null
         prefs.unregisterOnSharedPreferenceChangeListener(sizeListener)
+        unregisterReceiver(languageReceiver)
         bubble?.let { runCatching { windows.removeView(it) } }
         bubble = null; layout = null; state.value = false
         stopForeground(STOP_FOREGROUND_REMOVE)

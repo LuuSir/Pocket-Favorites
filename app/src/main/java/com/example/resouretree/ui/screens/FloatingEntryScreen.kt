@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.screens
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
@@ -50,7 +52,7 @@ fun FloatingEntryScreen(onBack: () -> Unit) {
         try {
             FloatingEntryService.error.value = null
             ContextCompat.startForegroundService(context, Intent(context, FloatingEntryService::class.java))
-        } catch (_: Exception) { error = "暂时无法开启，请保持应用在前台后重试" }
+        } catch (_: Exception) { error = AppText.get(R.string.overlay_retry) }
     }
     val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { start() }
     fun enable() {
@@ -67,7 +69,7 @@ fun FloatingEntryScreen(onBack: () -> Unit) {
         if (!permitted && running) context.stopService(Intent(context, FloatingEntryService::class.java))
         if (awaitingPermission) {
             awaitingPermission = false
-            if (permitted) enable() else error = "尚未允许显示在其他应用上层，可再次点击开启"
+            if (permitted) enable() else error = AppText.get(R.string.overlay_not_allowed)
         }
     })
     DisposableEffect(lifecycle) {
@@ -75,21 +77,21 @@ fun FloatingEntryScreen(onBack: () -> Unit) {
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
     }
-    Scaffold(topBar = { TopAppBar(title = { Text("悬浮按钮") }, navigationIcon = { TextButton(onClick = onBack) { Text("返回") } }) }) { padding ->
+    Scaffold(topBar = { TopAppBar(title = { Text(AppText.get(R.string.floating_button)) }, navigationIcon = { TextButton(onClick = onBack) { Text(AppText.get(R.string.back)) } }) }) { padding ->
         Column(Modifier.padding(padding).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("在其他应用复制文字后，单击悬浮按钮直接打开收集窗口，按剪贴板规则预填条目。保存到首页后回到原应用。")
-            Text("下拉通知栏进入快捷开关的编辑界面，添加「ResourceTree 悬浮窗」。点亮开启，再点关闭；拖动悬浮按钮可调整位置。保存前需你确认。")
-            Text(if (running) "状态：已开启" else "状态：已关闭")
-            Text("悬浮按钮大小：$sizeDp dp")
+            Text(AppText.get(R.string.overlay_intro))
+            Text(AppText.get(R.string.tile_instructions))
+            Text(if (running) AppText.get(R.string.status_on) else AppText.get(R.string.status_off))
+            Text(AppText.get(R.string.bubble_size_value, sizeDp))
             Slider(value = sizeDp.toFloat(), onValueChange = { sizeDp = settings.setSize(it) },
                 valueRange = FloatingEntrySettings.MIN_SIZE.toFloat()..FloatingEntrySettings.MAX_SIZE.toFloat(), steps = 14,
-                modifier = Modifier.fillMaxWidth().semantics { contentDescription = "悬浮按钮大小" })
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = AppText.get(R.string.bubble_size) })
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("小", style = MaterialTheme.typography.labelSmall)
-                TextButton(onClick = { sizeDp = settings.setSize(FloatingEntrySettings.DEFAULT_SIZE.toFloat()) }) { Text("恢复默认大小") }
-                Text("大", style = MaterialTheme.typography.labelSmall)
+                Text(AppText.get(R.string.small), style = MaterialTheme.typography.labelSmall)
+                TextButton(onClick = { sizeDp = settings.setSize(FloatingEntrySettings.DEFAULT_SIZE.toFloat()) }) { Text(AppText.get(R.string.reset_size)) }
+                Text(AppText.get(R.string.large), style = MaterialTheme.typography.labelSmall)
             }
-            Text("调整立即生效，关闭后再次开启也会保留。", style = MaterialTheme.typography.bodySmall)
+            Text(AppText.get(R.string.size_help), style = MaterialTheme.typography.bodySmall)
             (error ?: serviceError)?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Button(onClick = {
                 error = null
@@ -98,10 +100,10 @@ fun FloatingEntryScreen(onBack: () -> Unit) {
                 else {
                     awaitingPermission = true
                     try { overlayPermission.launch(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:${context.packageName}".toUri())) }
-                    catch (_: Exception) { awaitingPermission = false; error = "无法打开授权页面，请在系统设置中允许悬浮窗权限" }
+                    catch (_: Exception) { awaitingPermission = false; error = AppText.get(R.string.overlay_settings_failed) }
                 }
-            }) { Text(if (running) "关闭悬浮按钮" else "开启悬浮按钮") }
-            Text("首次开启需允许“显示在其他应用上层”。运行时的通知也可以返回首页或关闭按钮。部分手机还需允许“后台弹出界面”；若系统停止服务，可回这里重新开启。", style = MaterialTheme.typography.bodySmall)
+            }) { Text(if (running) AppText.get(R.string.disable_overlay) else AppText.get(R.string.enable_overlay)) }
+            Text(AppText.get(R.string.overlay_permission_help), style = MaterialTheme.typography.bodySmall)
         }
     }
 }

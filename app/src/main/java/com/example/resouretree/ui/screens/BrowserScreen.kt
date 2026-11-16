@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.screens
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,7 +31,7 @@ private data class TransferRequest(val ids: Set<String>, val copy: Boolean)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, onEdit: (ResourceNode) -> Unit, onClipboardRules: () -> Unit = {}, onFloatingEntry: () -> Unit = {}) {
+fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, onEdit: (ResourceNode) -> Unit, onClipboardRules: () -> Unit = {}, onFloatingEntry: () -> Unit = {}, onLanguage: () -> Unit = {}) {
     val state by vm.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     var menu by remember { mutableStateOf(false) }
@@ -62,42 +64,43 @@ fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, o
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Text(if (selectionMode) "已选 ${checked.size} 项" else if (searching) "全局搜索" else "ResourceTree",
+                Text(if (selectionMode) AppText.quantity(R.plurals.selected_count, checked.size) else if (searching) AppText.get(R.string.global_search) else AppText.get(R.string.app_name),
                     maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = if (selectionMode || searching) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
                     modifier = if (selectionMode || searching) Modifier else Modifier
                         .clickable(enabled = !state.busy) { graphMode = !graphMode }
-                        .semantics { contentDescription = if (graphMode) "切换到列表视角" else "切换到图视角" })
+                        .semantics { contentDescription = if (graphMode) AppText.get(R.string.switch_list) else AppText.get(R.string.switch_graph) })
             },
                 navigationIcon = { if (selectionMode || searching || state.currentId != null || graphMode) TextButton(enabled = !state.busy, onClick = {
                     if (selectionMode) clearSelection()
                     else if (searching) { searching = false; vm.search("") }
                     else if (state.currentId != null) vm.up() else graphMode = false
-                }) { Text(if (selectionMode) "取消" else "返回") } },
+                }) { Text(if (selectionMode) AppText.get(R.string.cancel) else AppText.get(R.string.back)) } },
                 actions = {
                     if (selectionMode) {
                         val allSelected = rows.isNotEmpty() && checked.size == rows.size
                         TextButton(enabled = !state.busy && rows.isNotEmpty(), onClick = {
                             selectedIds = if (allSelected) arrayListOf() else ArrayList(rows.map { it.id })
-                        }) { Text(if (allSelected) "取消全选" else "全选") }
+                        }) { Text(if (allSelected) AppText.get(R.string.deselect_all) else AppText.get(R.string.select_all)) }
                     } else {
-                    if (!searching) TextButton(enabled = !state.busy, onClick = { searching = true }) { Text("搜索") }
+                    if (!searching) TextButton(enabled = !state.busy, onClick = { searching = true }) { Text(AppText.get(R.string.search)) }
                     Box {
-                        TextButton(onClick = { menu = true }) { Text("菜单") }
+                        TextButton(onClick = { menu = true }) { Text(AppText.get(R.string.menu)) }
                         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-                            DropdownMenuItem(text = { Text("导入 JSON") }, enabled = !state.busy && !state.loading, onClick = {
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.import_json)) }, enabled = !state.busy && !state.loading, onClick = {
                                 menu = false
                                 try { importer.launch(arrayOf("application/json", "text/*", "application/octet-stream")) }
-                                catch (_: Exception) { vm.notify("未找到系统文件选择器") }
+                                catch (_: Exception) { vm.notify(AppText.get(R.string.document_picker_missing)) }
                             })
-                            DropdownMenuItem(text = { Text("导出 JSON") }, enabled = !state.busy && !state.loading, onClick = {
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.export_json)) }, enabled = !state.busy && !state.loading, onClick = {
                                 menu = false
                                 try { exporter.launch("ResourceTree-${java.time.LocalDate.now()}.json") }
-                                catch (_: Exception) { vm.notify("未找到系统文件选择器") }
+                                catch (_: Exception) { vm.notify(AppText.get(R.string.document_picker_missing)) }
                             })
-                            DropdownMenuItem(text = { Text("剪贴板规则") }, onClick = { menu = false; onClipboardRules() })
-                            DropdownMenuItem(text = { Text("悬浮按钮") }, onClick = { menu = false; onFloatingEntry() })
-                            DropdownMenuItem(text = { Text("关于") }, onClick = { menu = false; about = true })
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.clipboard_rules)) }, onClick = { menu = false; onClipboardRules() })
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.floating_button)) }, onClick = { menu = false; onFloatingEntry() })
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.language_title)) }, onClick = { menu = false; onLanguage() })
+                            DropdownMenuItem(text = { Text(AppText.get(R.string.about)) }, onClick = { menu = false; about = true })
                         }
                     }
                     }
@@ -107,37 +110,37 @@ fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, o
         bottomBar = {
             if (selectionMode) BottomAppBar {
                 TextButton(modifier = Modifier.weight(1f), enabled = checked.isNotEmpty() && !state.busy,
-                    onClick = { transfer = TransferRequest(checked, false) }) { Text("移动") }
+                    onClick = { transfer = TransferRequest(checked, false) }) { Text(AppText.get(R.string.move)) }
                 TextButton(modifier = Modifier.weight(1f), enabled = checked.isNotEmpty() && !state.busy,
-                    onClick = { transfer = TransferRequest(checked, true) }) { Text("复制") }
+                    onClick = { transfer = TransferRequest(checked, true) }) { Text(AppText.get(R.string.copy)) }
                 TextButton(modifier = Modifier.weight(1f), enabled = checked.isNotEmpty() && !state.busy,
-                    onClick = { deleting = checked }) { Text("删除") }
+                    onClick = { deleting = checked }) { Text(AppText.get(R.string.delete)) }
             }
         },
-        floatingActionButton = { if (!graphMode && !selectionMode && !searching && !state.loading && state.error == null && !state.busy) ExtendedFloatingActionButton(onClick = { create = true }) { Text("＋ 新建") } }
+        floatingActionButton = { if (!graphMode && !selectionMode && !searching && !state.loading && state.error == null && !state.busy) ExtendedFloatingActionButton(onClick = { create = true }) { Text(AppText.get(R.string.create)) } }
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-            if (searching) OutlinedTextField(state.query, vm::search, enabled = !selectionMode && !state.busy, label = { Text("搜索名称、内容、标签") }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(16.dp))
+            if (searching) OutlinedTextField(state.query, vm::search, enabled = !selectionMode && !state.busy, label = { Text(AppText.get(R.string.search_hint)) }, singleLine = true, modifier = Modifier.fillMaxWidth().padding(16.dp))
             else Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(enabled = !selectionMode && !state.busy, onClick = { vm.open(null) }) { Text("首页") }
+                TextButton(enabled = !selectionMode && !state.busy, onClick = { vm.open(null) }) { Text(AppText.get(R.string.home)) }
                 state.breadcrumb.forEach { node -> Text("›"); TextButton(enabled = !selectionMode && !state.busy, onClick = { vm.open(node.id) }) { Text(node.name) } }
             }
             if (graphMode && !searching) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("图视角", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                Text("展开全部", style = MaterialTheme.typography.labelLarge)
+                Text(AppText.get(R.string.graph_view), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                Text(AppText.get(R.string.expand_all), style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.width(8.dp))
                 Switch(checked = expandAll, onCheckedChange = { expandAll = it }, enabled = !state.busy,
-                    modifier = Modifier.semantics { contentDescription = "展开全部" })
+                    modifier = Modifier.semantics { contentDescription = AppText.get(R.string.expand_all) })
             }
             when {
-                state.error != null -> CenterMessage(state.error.orEmpty(), "重试", vm::initialize)
+                state.error != null -> CenterMessage(state.error.orEmpty(), AppText.get(R.string.retry), vm::initialize)
                 state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                 graphMode && !searching -> ResourceGraphView(state.all, state.currentId, expandAll, !state.busy) { node ->
                     if (node.type == NodeType.FOLDER) vm.open(node.id) else vm.execute(node)
                 }
-                searching && state.query.isBlank() -> CenterMessage("输入关键词，搜索所有目录中的条目")
-                rows.isEmpty() -> CenterMessage(if (searching) "没有匹配的条目" else "这里还没有内容\n点击 + 创建文件夹或条目")
+                searching && state.query.isBlank() -> CenterMessage(AppText.get(R.string.search_prompt))
+                rows.isEmpty() -> CenterMessage(if (searching) AppText.get(R.string.no_results) else AppText.get(R.string.empty_folder))
                 else -> key(state.currentId, searching) {
                     ReorderableNodeList(rows, selectionMode, checked, state.busy, canReorder = !searching,
                         onClick = { node -> if (selectionMode) toggle(node.id) else if (node.type == NodeType.FOLDER) vm.open(node.id) else vm.execute(node) },
@@ -147,26 +150,26 @@ fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, o
             }
         }
     }
-    if (create) AlertDialog(onDismissRequest = { create = false }, title = { Text("在当前目录新建") }, text = {
-        Column { NodeType.entries.forEach { type -> TextButton(onClick = { create = false; onCreate(type, state.currentId) }) { Text(if (type == NodeType.FOLDER) "新建文件夹" else "新建条目") } } }
-    }, confirmButton = { TextButton(onClick = { create = false }) { Text("取消") } })
+    if (create) AlertDialog(onDismissRequest = { create = false }, title = { Text(AppText.get(R.string.create_here)) }, text = {
+        Column { NodeType.entries.forEach { type -> TextButton(onClick = { create = false; onCreate(type, state.currentId) }) { Text(if (type == NodeType.FOLDER) AppText.get(R.string.new_folder) else AppText.get(R.string.new_item)) } } }
+    }, confirmButton = { TextButton(onClick = { create = false }) { Text(AppText.get(R.string.cancel)) } })
     selected?.let { node -> AlertDialog(onDismissRequest = { selected = null }, title = { Text(node.name) }, text = {
         Column {
-            TextButton(enabled = !state.busy, onClick = { selected = null; vm.setPinned(node) }) { Text(if (node.isPinned) "取消置顶" else "置顶") }
-            TextButton(enabled = !state.busy, onClick = { selected = null; onEdit(node) }) { Text("编辑") }
-            TextButton(enabled = !state.busy, onClick = { selected = null; selectionMode = true; selectedIds = arrayListOf(node.id) }) { Text("多选") }
-            TextButton(enabled = !state.busy, onClick = { selected = null; transfer = TransferRequest(setOf(node.id), false) }) { Text("移动") }
-            TextButton(enabled = !state.busy, onClick = { selected = null; transfer = TransferRequest(setOf(node.id), true) }) { Text("复制") }
-            TextButton(enabled = !state.busy, onClick = { selected = null; deleting = setOf(node.id) }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; vm.setPinned(node) }) { Text(if (node.isPinned) AppText.get(R.string.unpin) else AppText.get(R.string.pin)) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; onEdit(node) }) { Text(AppText.get(R.string.edit)) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; selectionMode = true; selectedIds = arrayListOf(node.id) }) { Text(AppText.get(R.string.select_multiple)) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; transfer = TransferRequest(setOf(node.id), false) }) { Text(AppText.get(R.string.move)) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; transfer = TransferRequest(setOf(node.id), true) }) { Text(AppText.get(R.string.copy)) }
+            TextButton(enabled = !state.busy, onClick = { selected = null; deleting = setOf(node.id) }) { Text(AppText.get(R.string.delete), color = MaterialTheme.colorScheme.error) }
         }
-    }, confirmButton = { TextButton(onClick = { selected = null }) { Text("取消") } }) }
+    }, confirmButton = { TextButton(onClick = { selected = null }) { Text(AppText.get(R.string.cancel)) } }) }
     deleting?.let { ids ->
         val total = ids.flatMap { Tree.descendants(state.all, it) }.toSet().size
         val single = state.all.find { it.id == ids.singleOrNull() }
-        AlertDialog(onDismissRequest = { deleting = null }, title = { Text(if (single != null) "删除“${single.name}”？" else "删除所选 ${ids.size} 项？") },
-        text = { Text("将删除 $total 个节点，包括所选目录中的全部子目录和条目。此操作无法撤销。") },
-        confirmButton = { TextButton(enabled = !state.busy, onClick = { deleting = null; vm.deleteMany(ids, clearSelection) }) { Text("删除", color = MaterialTheme.colorScheme.error) } },
-        dismissButton = { TextButton(onClick = { deleting = null }) { Text("取消") } }) }
+        AlertDialog(onDismissRequest = { deleting = null }, title = { Text(if (single != null) AppText.get(R.string.delete_named, single.name) else AppText.quantity(R.plurals.delete_selected, ids.size)) },
+        text = { Text(AppText.quantity(R.plurals.delete_warning, total)) },
+        confirmButton = { TextButton(enabled = !state.busy, onClick = { deleting = null; vm.deleteMany(ids, clearSelection) }) { Text(AppText.get(R.string.delete), color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton(onClick = { deleting = null }) { Text(AppText.get(R.string.cancel)) } }) }
     transfer?.let { request ->
         val excluded = remember(state.all, request) {
             if (request.copy) emptySet() else request.ids.flatMap { Tree.descendants(state.all, it) }.toSet()
@@ -177,9 +180,9 @@ fun BrowserScreen(vm: BrowserViewModel, onCreate: (NodeType, String?) -> Unit, o
         DestinationPicker(state.all, state.currentId, excluded, request.copy, request.ids.size, state.busy,
             onSelect = destination, onDismiss = { transfer = null })
     }
-    if (about) AlertDialog(onDismissRequest = { about = false }, title = { Text("ResourceTree 0.9") },
-        text = { Text("本地树状快捷资源管理器\n\n所有资源保存在设备上。导入会追加到首页，不覆盖已有内容。\n\n复制后将打开指定应用；目标应用是否识别剪贴板由该应用决定。") },
-        confirmButton = { TextButton(onClick = { about = false }) { Text("知道了") } })
+    if (about) AlertDialog(onDismissRequest = { about = false }, title = { Text(AppText.get(R.string.about_title, AppText.get(R.string.app_name))) },
+        text = { Text(AppText.get(R.string.about_description)) },
+        confirmButton = { TextButton(onClick = { about = false }) { Text(AppText.get(R.string.got_it)) } })
 }
 
 @Composable

@@ -5,6 +5,7 @@ import com.example.resouretree.domain.model.*
 import org.junit.Assert.*
 import org.junit.Test
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
 class ActionExecutorTest {
     @Test fun copyAlwaysPrecedesLaunch() {
         val calls = mutableListOf<String>()

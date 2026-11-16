@@ -1,5 +1,7 @@
 package com.example.resouretree.data.clipboard
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.content.Context
 import com.example.resouretree.domain.model.ClipboardRule
 import com.example.resouretree.domain.model.ActionType
@@ -17,7 +19,7 @@ class ClipboardRuleStore(context: Context) {
 
     fun save(rule: ClipboardRule) {
         val validated = rule.validated()
-        require(mutable.value.none { it.id != rule.id && it.prefix == validated.prefix && it.matchType == validated.matchType }) { "该匹配规则已存在，请编辑原规则" }
+        require(mutable.value.none { it.id != rule.id && it.prefix == validated.prefix && it.matchType == validated.matchType }) { AppText.get(R.string.rule_duplicate) }
         val next = if (mutable.value.any { it.id == rule.id }) mutable.value.map { if (it.id == rule.id) validated else it }
             else mutable.value + validated
         write(next)

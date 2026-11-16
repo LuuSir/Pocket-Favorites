@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.components
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +25,7 @@ fun ApplicationIcon(app: InstalledApp?, modifier: Modifier = Modifier) {
     val iconModifier = modifier.size(40.dp)
     if (icon != null) Image(icon.asImageBitmap(), contentDescription = null, modifier = iconModifier)
     else Surface(iconModifier, shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.secondaryContainer) {
-        Box(contentAlignment = Alignment.Center) { Text(app?.name?.take(1) ?: "应用") }
+        Box(contentAlignment = Alignment.Center) { Text(app?.name?.take(1) ?: AppText.get(R.string.app)) }
     }
 }
 
@@ -40,20 +42,20 @@ fun AppPicker(
     }
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) {
-            Scaffold(topBar = { TopAppBar(title = { Text("选择应用") },
-                navigationIcon = { TextButton(onClick = onDismiss) { Text("返回") } },
-                actions = { TextButton(enabled = !loading, onClick = onReload) { Text("刷新") } }) }) { padding ->
+            Scaffold(topBar = { TopAppBar(title = { Text(AppText.get(R.string.choose_app)) },
+                navigationIcon = { TextButton(onClick = onDismiss) { Text(AppText.get(R.string.back)) } },
+                actions = { TextButton(enabled = !loading, onClick = onReload) { Text(AppText.get(R.string.refresh)) } }) }) { padding ->
                 Column(Modifier.padding(padding).imePadding()) {
-                    OutlinedTextField(query, { query = it }, label = { Text("搜索应用") }, singleLine = true,
+                    OutlinedTextField(query, { query = it }, label = { Text(AppText.get(R.string.search_apps)) }, singleLine = true,
                         modifier = Modifier.fillMaxWidth().padding(16.dp))
                     when {
                         loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
                         error != null -> Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text(error, color = MaterialTheme.colorScheme.error)
-                            Button(onClick = onReload) { Text("重试") }
+                            Button(onClick = onReload) { Text(AppText.get(R.string.retry)) }
                         }
                         filtered.isEmpty() -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                            Text(if (query.isNotBlank()) "没有找到匹配的应用" else "没有可选择的应用。若系统询问应用列表权限，请允许后刷新。")
+                            Text(if (query.isNotBlank()) AppText.get(R.string.no_matching_apps) else AppText.get(R.string.no_apps))
                         }
                         else -> LazyColumn(Modifier.fillMaxSize()) {
                             items(filtered, key = { it.packageName }) { app ->

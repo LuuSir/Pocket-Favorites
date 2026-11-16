@@ -1,5 +1,8 @@
 package com.example.resouretree.domain.model
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
+
 enum class NodeType { FOLDER, ITEM }
 enum class ActionType { NONE, COPY, LAUNCH_APP, COPY_AND_LAUNCH, SHARE, OPEN_WEBVIEW }
 enum class ContentType { TEXT, IMAGE, VIDEO, FILE }
@@ -56,8 +59,8 @@ object Tree {
         val visited = mutableSetOf<String>()
         var current = id
         while (current != null) {
-            require(visited.add(current)) { "目录关系存在循环" }
-            val node = requireNotNull(byId[current]) { "目录不存在" }
+            require(visited.add(current)) { AppText.get(R.string.tree_cycle) }
+            val node = requireNotNull(byId[current]) { AppText.get(R.string.folder_missing) }
             path.add(node)
             current = node.parentId
         }
@@ -66,15 +69,15 @@ object Tree {
 
     fun validate(nodes: List<ResourceNode>) {
         val byId = nodes.associateBy { it.id }
-        require(byId.size == nodes.size) { "节点 ID 重复" }
+        require(byId.size == nodes.size) { AppText.get(R.string.duplicate_node_id) }
         nodes.forEach { node ->
-            require(node.name.isNotBlank()) { "名称不能为空" }
-            if (node.parentId != null) require(byId[node.parentId]?.type == NodeType.FOLDER) { "父目录不存在或不是文件夹" }
+            require(node.name.isNotBlank()) { AppText.get(R.string.name_empty) }
+            if (node.parentId != null) require(byId[node.parentId]?.type == NodeType.FOLDER) { AppText.get(R.string.invalid_parent) }
             val visited = mutableSetOf<String>()
             var current: ResourceNode? = node
             while (current != null) {
-                require(visited.add(current.id)) { "目录关系存在循环" }
-                require(visited.size <= 100) { "目录层级不能超过 100 层" }
+                require(visited.add(current.id)) { AppText.get(R.string.tree_cycle) }
+                require(visited.size <= 100) { AppText.get(R.string.tree_too_deep) }
                 current = current.parentId?.let(byId::get)
             }
         }

@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.viewmodel
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -34,10 +36,10 @@ class BrowserViewModel(
     private val busy = MutableStateFlow(false)
     private val messagesChannel = Channel<String>(Channel.BUFFERED)
     val messages = messagesChannel.receiveAsFlow()
-    private val nodes = repository.all.catch { failure.value = it.message ?: "读取数据库失败" }
+    private val nodes = repository.all.catch { failure.value = it.message ?: AppText.get(R.string.database_read_failed) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val search = query.flatMapLatest { repository.search(it.trim()) }
-        .catch { failure.value = it.message ?: "搜索失败" }
+        .catch { failure.value = it.message ?: AppText.get(R.string.search_failed) }
     private val base = combine(nodes, current, query, search) { all, id, text, results ->
         val validId = id?.takeIf { target -> all.any { it.id == target && it.type == NodeType.FOLDER } }
         BrowserState(currentId = validId, all = all,
@@ -54,7 +56,7 @@ class BrowserViewModel(
         viewModelScope.launch {
             try { repository.initialize(); ready.value = true }
             catch (e: CancellationException) { throw e }
-            catch (e: Exception) { failure.value = e.message ?: "数据库初始化失败" }
+            catch (e: Exception) { failure.value = e.message ?: AppText.get(R.string.database_init_failed) }
         }
     }
     fun open(id: String?) { savedState["currentDirectory"] = id }
@@ -71,7 +73,7 @@ class BrowserViewModel(
         viewModelScope.launch {
             try { block(); onSuccess() }
             catch (e: CancellationException) { throw e }
-            catch (e: Exception) { messagesChannel.send(e.message ?: "操作失败，请重试") }
+            catch (e: Exception) { messagesChannel.send(e.message ?: AppText.get(R.string.operation_failed)) }
             finally { busy.value = false }
         }
     }

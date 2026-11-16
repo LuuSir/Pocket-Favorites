@@ -8,6 +8,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.util.UUID
 
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
 class ContentV2Test {
     private val codec = TreeJson()
     @Test fun v1UsesContentAndOnlyFallsBackWhenEmpty() {

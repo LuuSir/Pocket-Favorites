@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.components
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,8 +26,8 @@ fun NodeRow(node: ResourceNode, onClick: () -> Unit, onMenu: () -> Unit,
         headlineContent = { Text(node.name, maxLines = 2, overflow = TextOverflow.Ellipsis) },
         supportingContent = {
             Column {
-            if (node.isPinned) Text("已置顶", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
-            if (folder) Text("文件夹") else {
+            if (node.isPinned) Text(AppText.get(R.string.pinned), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
+            if (folder) Text(AppText.get(R.string.folder)) else {
                 Column {
                     val preview = if (node.content.type == ContentType.TEXT) node.content.text else node.content.type.name
                     if (preview.isNotEmpty()) Text(preview, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -52,7 +54,7 @@ fun NodeRow(node: ResourceNode, onClick: () -> Unit, onMenu: () -> Unit,
         trailingContent = {
             if (selectionMode) Checkbox(checked = selected, enabled = enabled, onCheckedChange = { onClick() })
             else TextButton(onClick = onMenu, enabled = enabled,
-                modifier = Modifier.semantics { contentDescription = "更多：${node.name}" }) { Text("更多") }
+                modifier = Modifier.semantics { contentDescription = AppText.get(R.string.more_named, node.name) }) { Text(AppText.get(R.string.more)) }
         },
         colors = ListItemDefaults.colors(containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface),
         modifier = Modifier.clickable(enabled = enabled, onClick = onClick)

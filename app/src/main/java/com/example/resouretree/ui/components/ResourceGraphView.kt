@@ -1,5 +1,7 @@
 package com.example.resouretree.ui.components
 
+import com.example.resouretree.R
+import com.example.resouretree.localization.AppText
 import androidx.compose.foundation.Canvas
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animate
@@ -129,12 +131,12 @@ private fun GraphCanvas(graph: ResourceGraph, scope: GraphScope, enabled: Boolea
     val byId = remember(frame.nodes) { frame.nodes.associateBy { it.key } }
     Column(Modifier.fillMaxSize().testTag("graph-view")) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${graph.nodes.size - 1} 个节点", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
-            Text("双指缩放 · 拖动画布", style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+            Text(AppText.quantity(R.plurals.node_count, graph.nodes.size - 1), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
+            Text(AppText.get(R.string.graph_gestures), style = MaterialTheme.typography.labelMedium, color = colors.onSurfaceVariant)
         }
         Box(Modifier.weight(1f).fillMaxWidth().clipToBounds().background(colors.surfaceContainerLowest)
             .onSizeChanged { viewport = it }.testTag("graph-canvas")
-            .semantics { contentDescription = "资源图，${graph.nodes.size - 1} 个节点"; stateDescription = "缩放 $zoomLabel" }
+            .semantics { contentDescription = AppText.quantity(R.plurals.graph_description, graph.nodes.size - 1); stateDescription = AppText.get(R.string.zoom_value, zoomLabel) }
             .pointerInput(graph, viewport, density, minimum) {
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -195,7 +197,7 @@ private fun GraphCanvas(graph: ResourceGraph, scope: GraphScope, enabled: Boolea
                                 drawRoundRect(ink, icon + Offset(0f, 3f * density), Size(15f * density, 10f * density), CornerRadius(2f * density))
                             } else drawCircle(ink, 5f * density, icon + Offset(7f * density, 7f * density))
                             if (node.resource?.isPinned == true) drawCircle(ink, 2.5f * density, origin + Offset(115f * density, 12f * density))
-                            drawText(textMeasurer, node.name, topLeft = origin + Offset(8f * density, 32f * density),
+                            drawText(textMeasurer, node.resource?.name ?: AppText.get(R.string.home), topLeft = origin + Offset(8f * density, 32f * density),
                                 style = titleStyle.copy(color = ink), overflow = TextOverflow.Ellipsis, maxLines = 1,
                                 size = Size(112f * density, 26f * density))
                         }
@@ -212,11 +214,11 @@ private fun GraphCanvas(graph: ResourceGraph, scope: GraphScope, enabled: Boolea
                         .size((128 * camera.scale).dp, (64 * camera.scale).dp)
                         .testTag(if (node.depth == 0) "graph-root" else "graph-node-${node.resource!!.id}")
                         .semantics {
-                            contentDescription = "${if (node.depth == 0) "当前目录" else if (node.resource?.type == NodeType.FOLDER) "文件夹" else "条目"}：${node.name}"
+                            contentDescription = AppText.get(R.string.graph_node_description, AppText.get(if (node.depth == 0) R.string.current_folder else if (node.resource?.type == NodeType.FOLDER) R.string.folder else R.string.item), node.resource?.name ?: AppText.get(R.string.home))
                             if (node.interactive) {
                                 role = Role.Button
                                 if (!enabled) disabled()
-                                onClick(if (node.resource?.type == NodeType.FOLDER) "进入文件夹" else "执行条目动作") {
+                                onClick(if (node.resource?.type == NodeType.FOLDER) AppText.get(R.string.open_folder) else AppText.get(R.string.run_item)) {
                                     val current = motion.frame().nodes.find { it.key == node.key }
                                     if (allowed && current?.interactive == true && current.opacity >= .75f) current.resource?.let(click)
                                     allowed && current?.interactive == true
@@ -225,13 +227,13 @@ private fun GraphCanvas(graph: ResourceGraph, scope: GraphScope, enabled: Boolea
                         })
                 }
             }
-            if (graph.nodes.size == 1) Text("这里还没有内容，可切回列表新建", Modifier.align(Alignment.BottomCenter).padding(16.dp), style = MaterialTheme.typography.bodySmall)
+            if (graph.nodes.size == 1) Text(AppText.get(R.string.graph_empty), Modifier.align(Alignment.BottomCenter).padding(16.dp), style = MaterialTheme.typography.bodySmall)
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { moveCamera(camera.transform(GraphPoint(0f, 0f), GraphPoint(0f, 0f), 1 / 1.4f, minimum)) }, modifier = Modifier.semantics { contentDescription = "缩小" }) { Text("−") }
-            TextButton(onClick = { moveCamera(fit) }) { Text("适应画布") }
+            TextButton(onClick = { moveCamera(camera.transform(GraphPoint(0f, 0f), GraphPoint(0f, 0f), 1 / 1.4f, minimum)) }, modifier = Modifier.semantics { contentDescription = AppText.get(R.string.zoom_out) }) { Text("−") }
+            TextButton(onClick = { moveCamera(fit) }) { Text(AppText.get(R.string.fit_canvas)) }
             Text(zoomLabel, style = MaterialTheme.typography.labelMedium)
-            TextButton(onClick = { moveCamera(camera.transform(GraphPoint(0f, 0f), GraphPoint(0f, 0f), 1.4f, minimum)) }, modifier = Modifier.semantics { contentDescription = "放大" }) { Text("＋") }
+            TextButton(onClick = { moveCamera(camera.transform(GraphPoint(0f, 0f), GraphPoint(0f, 0f), 1.4f, minimum)) }, modifier = Modifier.semantics { contentDescription = AppText.get(R.string.zoom_in) }) { Text("＋") }
         }
     }
 }

@@ -8,13 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import com.example.resouretree.overlay.FloatingEntryService
 import androidx.lifecycle.Lifecycle
-import androidx.activity.ComponentActivity
+import com.example.resouretree.localization.LocalizedActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.resouretree.ui.navigation.ResourceTreeApp
 import com.example.resouretree.ui.theme.ResoureTreeTheme
 
-class MainActivity : ComponentActivity() {
+class MainActivity : LocalizedActivity() {
     private var homeRequest by mutableIntStateOf(0)
     private val clipboard by lazy { getSystemService(ClipboardManager::class.java) }
     private val clipboardListener = ClipboardManager.OnPrimaryClipChangedListener { checkClipboard() }
