@@ -2,6 +2,11 @@
 <resources>
 
     <style name="Theme.ResoureTree" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ResoureTree.OverlayStart" parent="android:Theme.Material.Light.Dialog.NoActionBar">
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
     <style name="Theme.ResoureTree.Capture" parent="android:Theme.Material.Light.Dialog.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowCloseOnTouchOutside">false</item>

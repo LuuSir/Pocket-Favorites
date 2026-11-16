@@ -8,6 +8,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import com.example.resouretree.overlay.FloatingEntryService
 import com.example.resouretree.overlay.FloatingEntryTileService
+import com.example.resouretree.overlay.FloatingEntryStartActivity
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,11 +44,12 @@ class FloatingEntryTileTest {
             shadowOf(Looper.getMainLooper()).idle()
             assertEquals(Tile.STATE_INACTIVE, tile.qsTile.state)
             tile.onClick()
-            val started = shadowOf(tile.application).nextStartedService
-            assertEquals(FloatingEntryService::class.java.name, started.component?.className)
-            assertNull(shadowOf(tile.application).nextStartedActivity)
+            val started = shadowOf(tile.application).nextStartedActivity
+            assertEquals(FloatingEntryStartActivity::class.java.name, started.component?.className)
+            assertTrue(started.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
+            assertNull(shadowOf(tile.application).nextStartedService)
             assertEquals(Tile.STATE_INACTIVE, tile.qsTile.state) // Until the window really exists.
-            overlay.get().onStartCommand(started, 0, 1)
+            overlay.get().onStartCommand(Intent(), 0, 1)
             shadowOf(Looper.getMainLooper()).idle()
             assertEquals(Tile.STATE_ACTIVE, tile.qsTile.state)
             tile.onClick()
@@ -69,6 +71,20 @@ class FloatingEntryTileTest {
             if (FloatingEntryService.running.value) overlay.destroy()
             controller.destroy()
         }
+    }
+
+    @Test fun newTileServiceCanRequestColdLaunchWithoutAnActivityOrOverlayRunning() {
+        ShadowSettings.setCanDrawOverlays(true)
+        val first = Robolectric.buildService(FloatingEntryTileService::class.java).create()
+        first.destroy()
+        val recreated = Robolectric.buildService(FloatingEntryTileService::class.java).create()
+        try {
+            assertFalse(FloatingEntryService.running.value)
+            recreated.get().onClick()
+            assertEquals(FloatingEntryStartActivity::class.java.name,
+                shadowOf(recreated.get().application).nextStartedActivity.component?.className)
+            assertNull(shadowOf(recreated.get().application).nextStartedService)
+        } finally { recreated.destroy() }
     }
 
     @Test

@@ -35,6 +35,9 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/media_paths" />
         </provider>
         <activity android:name=".WebPageActivity" android:exported="false" />
+        <activity android:name=".overlay.FloatingEntryStartActivity" android:exported="false"
+            android:theme="@style/Theme.ResoureTree.OverlayStart" android:excludeFromRecents="true"
+            android:taskAffinity="${applicationId}.overlaystart" android:launchMode="singleTask" />
         <activity android:name=".ClipboardCaptureActivity" android:exported="false"
             android:theme="@style/Theme.ResoureTree.Capture" android:excludeFromRecents="true"
             android:taskAffinity="${applicationId}.clipboard" android:launchMode="singleTask"

@@ -1,5 +1,7 @@
 # 验证结果
 
+v0.9 快捷开关冷启动修复（2026-10-29）：真机历史日志确认 MIUI 在进程回收后拒绝快捷磁贴直接后台启动 FloatingEntryService（`Background start not allowed`、`startFg?=true`）。改为通过系统 TileService 启动独立可见窗口，在 RESUMED 后开启前台服务，等待悬浮窗实际创建后关闭；失败或 8 秒超时提示。146 项本地测试全部通过，含 Android 8、13、15 的新建磁贴服务唤起、前台生命周期、缺权限、失败/超时和重复启动处理；Debug/Release 构建、AndroidTest 编译及两个 lint 通过（各 0 errors、20 warnings）。同签名非调试 v0.9 Release 已覆盖安装，只读 snapshot/compare 通过，908 个节点、规则、Room schema 3 与升级前一致。按用户要求未操作手机界面，也未运行真机 UI 套件；真实久置/进程回收后的系统快捷开关操作待用户验收。旧改动已单独存入本地检查点 `87370e3`，本次修复未推送远端。
+
 v0.8 快捷开关版本（2026-10-27）：已加入「ResourceTree 悬浮窗」通知栏快捷磁贴并移除长按透明锁定。134 项本地测试通过（0 失败/错误/跳过），含 Android 8、13、15 的磁贴开关、实际状态同步和权限引导；旧锁定值不影响可见性与单击，按住拖动及取消不误触发收集。Debug/Release 构建、AndroidTest 编译及两个 lint 均通过（各 0 errors、20 warnings）。已通过同签名、非调试及完整性检查并覆盖安装 v0.8 Release；安装前后只读 snapshot/compare 均通过，908 个节点、规则和 Room schema 3 保持一致，系统可查询到注册的快捷磁贴服务。按用户要求未操作手机界面，通知栏添加及实际点击由用户验收；本次未运行完整真机 UI 套件，也未推送或发布远端 Release。使用方法见 [快捷开关说明](reports/README.md)。
 
 v0.7 悬浮收集版本（2026-10-21）：128 项本地测试全部通过；Debug/Release 构建、AndroidTest 编译及 Debug/Release lint 通过，两个 lint 报告各为 0 errors、21 warnings。Android 13 真机完整套件实际 23 项通过，另 1 项手动数据保留检查默认跳过，0 失败；随后在同签名、非调试 v0.7 Release 覆盖安装后显式执行数据 compare 并通过：906 个节点、剪贴板规则与 Room schema 3 均与升级前一致。新增真机用例验证获得焦点后读取完整剪贴板、不经过首页、重建保留编辑及取消不写库；长按锁定、解除与手势取消由本地测试覆盖。最终 Release 已覆盖安装并冷启动成功；用户选择自行操作，尚未完成人工长按和透明效果验收。测试期间常亮设置已恢复原值 0，MIUI 后台弹出界面权限已允许以支持悬浮收集。此次未提交 Git、推送远端或公开发布 v0.7。使用说明见 [reports/README.md](reports/README.md)。

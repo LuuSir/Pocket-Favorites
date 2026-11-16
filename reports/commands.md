@@ -20,7 +20,7 @@ $env:GRADLE_USER_HOME = 'D:\Android\GradleCache'
 
 ```powershell
 & 'D:\Android\SDK\platform-tools\adb.exe' devices
-& 'D:\Android\SDK\platform-tools\adb.exe' install -r 'build/releases/ResourceTree-v0.8.apk'
+& 'D:\Android\SDK\platform-tools\adb.exe' install -r 'build/releases/ResourceTree-v0.9.apk'
 ```
 
 `devices` 应列出 `device`；`unauthorized` 需在手机确认 USB 调试。`install -r` 使用同签名包覆盖安装，保留数据，成功输出 `Success`。
@@ -31,7 +31,7 @@ $env:GRADLE_USER_HOME = 'D:\Android\GradleCache'
 .\gradlew.bat :app:testDebugUnitTest --tests '*FloatingEntry*' --offline --console=plain
 ```
 
-`--tests` 仅运行匹配的本地测试类；磁贴覆盖 Android 8、13、15。首次运行缺少对应 Robolectric 运行库时仍需要下载；`--offline` 仅限制 Gradle 自身的依赖解析。
+`--tests` 仅运行匹配的本地测试类；磁贴和独立前台启动窗口覆盖 Android 8、13、15，包括进程内无现有 Activity 的启动请求、成功/失败/超时以及重复启动。真实久置后的系统行为需在手机手动验收。首次运行缺少对应 Robolectric 运行库时仍需要下载；`--offline` 仅限制 Gradle 自身的依赖解析。
 
 开发测试需先覆盖安装 Debug APK 和 `app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`，再运行：
 
@@ -44,7 +44,7 @@ $env:GRADLE_USER_HOME = 'D:\Android\GradleCache'
 发布前检查（不会上传）：
 
 ```powershell
-python tools/publish_release.py --tag v0.8 --apk build/releases/ResourceTree-v0.8.apk --build-tools D:/Android/SDK/build-tools/36.0.0 --check-only
+python tools/publish_release.py --tag v0.9 --apk build/releases/ResourceTree-v0.9.apk --build-tools D:/Android/SDK/build-tools/36.0.0 --check-only
 ```
 
 | 发布参数 | 含义 |

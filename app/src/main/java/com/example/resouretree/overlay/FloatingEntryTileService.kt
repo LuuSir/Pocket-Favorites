@@ -8,7 +8,6 @@ import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,27 +38,18 @@ class FloatingEntryTileService : TileService() {
         if (isLocked) unlockAndRun { toggle() } else toggle()
     }
 
-    // Lint's tile check ignores the SDK guard: the Intent overload is required on API 26–33.
-    @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun toggle() {
         try {
             when {
                 FloatingEntryService.running.value -> stopService(Intent(this, FloatingEntryService::class.java))
                 !Settings.canDrawOverlays(this) -> {
                     // After granting permission, the user taps the tile again to enable it.
-                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    if (Build.VERSION.SDK_INT >= 34) {
-                        startActivityAndCollapse(PendingIntent.getActivity(this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-                    } else {
-                        @Suppress("DEPRECATION")
-                        startActivityAndCollapse(intent)
-                    }
+                    openFromTile(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri()))
                 }
                 else -> {
-                    FloatingEntryService.error.value = null
-                    ContextCompat.startForegroundService(this, Intent(this, FloatingEntryService::class.java))
+                    // SystemUI starts a visible activity even after process reclamation. Starting
+                    // the FGS directly here is blocked by MIUI once the foreground grace expires.
+                    openFromTile(Intent(this, FloatingEntryStartActivity::class.java))
                 }
             }
         } catch (_: Exception) {
@@ -67,6 +57,19 @@ class FloatingEntryTileService : TileService() {
         }
         // Never show an optimistic ON state: only the actual overlay service can activate it.
         updateState()
+    }
+
+    // The Intent overload remains necessary on API 26–33; API 34+ uses PendingIntent.
+    @SuppressLint("StartActivityAndCollapseDeprecated")
+    private fun openFromTile(intent: Intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (Build.VERSION.SDK_INT >= 34) {
+            startActivityAndCollapse(PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+        } else {
+            @Suppress("DEPRECATION")
+            startActivityAndCollapse(intent)
+        }
     }
 
     private fun updateState() {

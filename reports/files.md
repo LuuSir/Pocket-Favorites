@@ -7,7 +7,8 @@
 | `MainActivity.kt` | 主界面入口；在窗口有焦点时按剪贴板规则自动预填 |
 | `overlay/FloatingEntryService.kt` | 管理悬浮窗口与通知；单击启动 ClipboardCaptureActivity；运行状态供设置页与快捷开关观察 |
 | `overlay/FloatingEntryTouchListener.kt` | 区分短按、拖动和取消；按住可继续拖动，长按松手不生成点击 |
-| `overlay/FloatingEntryTileService.kt` | 系统 Quick Settings 磁贴；单击启动/停止悬浮服务，面板可见期间观察实际状态；缺权限时打开系统授权页 |
+| `overlay/FloatingEntryTileService.kt` | 系统 Quick Settings 磁贴；开启时通过 SystemUI 打开 FloatingEntryStartActivity，关闭时停止悬浮服务；面板可见期间观察实际状态；缺权限时打开系统授权页 |
+| `overlay/FloatingEntryStartActivity.kt` | 独立短暂启动窗口，RESUMED 后启动前台服务，等窗口创建成功后关闭；失败提示、8 秒超时，避免依赖后台启动宽限期；不读剪贴板或加载首页 |
 | `overlay/FloatingEntrySettings.kt` | SharedPreferences 保存尺寸；沿用原位置设置，不修改 Room |
 | `ClipboardCaptureActivity.kt` | 独立收集窗口；获得焦点后读取一次剪贴板，匹配规则、解析目标并复用编辑器；保存/取消关闭自身任务 |
 | `data/clipboard/ClipboardDraftInbox.kt` | 自动预填去重；主动收集可重读已处理文本，不向主界面发送导航请求 |
@@ -34,6 +35,6 @@
 | `app/src/test/`、`app/src/androidTest/` | 本地测试和设备测试；快捷开关本地回归见 FloatingEntryTileTest |
 | `tools/`、`reports/` | 辅助工具及用户维护文档 |
 
-上表 `domain/`、`data/`、`ui/`、`overlay/` 均位于开头所列 Android 源码包目录。快捷磁贴和设置页控制同一个 FloatingEntryService，服务创建窗口后才报告开启，避免另存一份开关状态与真实窗口脱节。
+上表 `domain/`、`data/`、`ui/`、`overlay/` 均位于开头所列 Android 源码包目录。快捷磁贴通过 SystemUI → FloatingEntryStartActivity → FloatingEntryService 唤起；设置页直接控制同一个 FloatingEntryService，服务创建窗口后才报告开启，避免另存一份开关状态与真实窗口脱节。
 
 发布脚本参数、执行环境和输出见 [命令速查](commands.md)；多步骤顺序见 [发布教程](workflows/release.md)。本地 Word 稿件被忽略，不属于公开源码或发布附件。
