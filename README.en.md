@@ -42,3 +42,7 @@ The Debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`. See t
 - [Bilibili favorites export tool](tools/bilibili-export/README.md)
 
 Next steps focus on media collection and device compatibility. The Android package remains `com.example.resouretree`, Room schema v3, and JSON schema v2.
+
+## License
+
+Released under the [MIT License](LICENSE). F-Droid store descriptions are maintained in [fastlane/metadata/android](fastlane/metadata/android/).

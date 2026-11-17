@@ -1,0 +1,15 @@
+Keep favorites from different apps in a local folder tree. Save text, links, images, videos, or files, then choose what happens when you tap an item.
+
+<ul>
+<li>Copy text, share content, open an app, or browse a web page.</li>
+<li>Organize folders with drag sorting, pinned items, and batch move, copy, or delete.</li>
+<li>Find content with global search and folder breadcrumbs.</li>
+<li>Explore a zoomable graph, enter folders, and expand descendants.</li>
+<li>Choose target apps with icons and search.</li>
+<li>Prefill an editor from clipboard rules with prefixes, wildcards, and candidate apps. Review before saving.</li>
+<li>Capture through a resizable floating button, controlled by a Quick Settings tile.</li>
+<li>Import and export JSON collections. Imports append independent copies.</li>
+<li>Choose English or Simplified Chinese, or follow the system language.</li>
+</ul>
+
+No account is required. Your collection is stored on your device. Sharing, opening other apps, and visiting web pages happen when you choose those actions. The floating button needs permission to display over other apps; clipboard capture uses a focused window.

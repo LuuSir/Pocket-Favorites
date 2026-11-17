@@ -36,3 +36,7 @@ Debug APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。签名 Release
 - [B 站收藏夹导出工具](tools/bilibili-export/README.md)
 
 后续重点是媒体收藏体验和真机兼容性。Android 包名继续使用 `com.example.resouretree`，Room schema 保持 v3，JSON schema 保持 v2。
+
+## License
+
+本项目采用 [MIT License](LICENSE)。F-Droid 应用介绍位于 [fastlane/metadata/android](fastlane/metadata/android/)。

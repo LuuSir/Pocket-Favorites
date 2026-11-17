@@ -1,0 +1,1 @@
+ResourceTree is now Pocket Favorites. Added English and Simplified Chinese language settings with Follow system as the default. Includes folder and graph views, batch organization, clipboard rules, floating capture, and the Quick Settings cold-start fix.
