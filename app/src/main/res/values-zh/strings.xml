@@ -2,7 +2,7 @@
     <string name="more">更多</string>
     <string name="about">"关于"</string>
     <string name="about_description">"本地树状快捷资源管理器\n\n所有资源保存在设备上。导入会追加到首页，不覆盖已有内容。\n\n复制后将打开指定应用；目标应用是否识别剪贴板由该应用决定。"</string>
-    <string name="about_title">"%1$s 1.0"</string>
+    <string name="about_title">"%1$s 1.0.1"</string>
     <string name="action_copy">"复制文字"</string>
     <string name="action_copy_launch">"复制并打开 App"</string>
     <string name="action_failed">"%1$s动作执行失败：%2$s"</string>

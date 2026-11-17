@@ -1,0 +1,1 @@
+Prepared reproducible builds for F-Droid distribution using the existing signing certificate. App features and saved collections are preserved.

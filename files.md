@@ -17,6 +17,7 @@ Android 源码根目录为 [com/example/resouretree](app/src/main/java/com/examp
 | 本地回归 | [app/src/test/](app/src/test/)；AppLanguageTest 覆盖 API 26 / 33 / 35，LanguageScreenTest 验证英文界面、切换和草稿恢复 |
 | 真机只读数据检查 | [InstalledDataPreservationInstrumentedTest.kt](app/src/androidTest/java/com/example/resouretree/InstalledDataPreservationInstrumentedTest.kt)，传 snapshot / compare 及全部四项基线 |
 | 发布脚本 | [scripts/publish_release.py](scripts/publish_release.py)，参数与输出见 [release workflow](workflows/release.md)；[tools/](tools/) 保留历史工具入口 |
+| F-Droid | [LICENSE](LICENSE)，[Fastlane](fastlane/metadata/android/)，[授权脚本](scripts/authorize_gitlab.ps1)；metadata 在 fdroiddata 独立 fork，步骤见 [workflow](workflows/fdroid.md) |
 | 日志与数据摘要 | `results/resourcetree/<YYYYMMDD>-<description>-<operator>/`，Git 忽略；当前汇总为 [reports/resourcetree.md](reports/resourcetree.md) |
 
 语言设置只改变资源解析，不写入 Room、Content、Action 或 Clipboard rule。Android 13+ 使用原生 LocaleManager 并支持系统的 App languages 页面；Android 8–12 使用 SharedPreferences 和 LocalizedActivity，Activity 重建后由原有 SavedStateHandle 恢复导航与草稿。运行中的悬浮通知通过语言变更广播 / Configuration 更新文案。

@@ -14,8 +14,8 @@ android {
         applicationId = "com.example.resouretree"
         minSdk = 26
         targetSdk = 37
-        versionCode = 10
-        versionName = "1.0"
+        versionCode = 11
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,6 +32,8 @@ android {
     buildTypes {
         release {
             isDebuggable = false
+            // F-Droid must reproduce the APK independently of the build checkout revision.
+            vcsInfo { include = false }
             if (releaseStore != null) signingConfig = signingConfigs.getByName("distribution")
             optimization {
                 enable = false

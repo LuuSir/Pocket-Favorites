@@ -1,4 +1,4 @@
-# 外置收藏夹 · Pocket Favorites 1.0
+# 外置收藏夹 · Pocket Favorites 1.0.1
 
 **简体中文** | [English](README.en.md)
 
@@ -6,7 +6,7 @@
 
 ## 开始使用
 
-- 从 [Release 1.0](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0) 下载 `PocketFavorites-v1.0.apk`。已安装 ResourceTree 的用户直接覆盖更新，包名和签名沿用旧版。
+- 从 [Release 1.0.1](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.1) 下载 `PocketFavorites-v1.0.1.apk`。已安装 ResourceTree 的用户直接覆盖更新，包名和签名沿用旧版。1.0.1 为 F-Droid 可复现构建调整版本。
 - 首页「＋ 新建」添加条目或文件夹；「更多」中置顶和批量整理，长按列表行拖拽排序。
 - 「菜单 → 界面语言」选择「跟随系统 / 简体中文 / English」。默认跟随系统；其他系统语言使用 English。语言切换保留已有内容与规则原文。
 - 点击左上角应用名称切换可缩放图视角；点击文件夹进入，点击条目执行动作；支持平移和展开全部后代。
@@ -40,3 +40,5 @@ Debug APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。签名 Release
 ## License
 
 本项目采用 [MIT License](LICENSE)。F-Droid 应用介绍位于 [fastlane/metadata/android](fastlane/metadata/android/)。
+
+F-Droid 提交状态与验证结果见 [报告](reports/resourcetree.md)，维护步骤见 [流程](workflows/fdroid.md)。

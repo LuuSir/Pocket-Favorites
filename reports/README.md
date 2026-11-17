@@ -29,6 +29,7 @@ Android 10 起，读取剪贴板需要窗口获得焦点，因此会显示收集
 | [命令速查](commands.md) | 构建、测试、安装和发布检查 |
 | [发布与保留数据升级](../workflows/release.md) | 签名、快照、覆盖安装、发布顺序及故障排查 |
 | [当前验证报告](resourcetree.md) | 已执行的验证与范围限制 |
+| [F-Droid 提交流程](../workflows/fdroid.md) | metadata、可复现构建、GitLab fork 与 MR |
 | [Content / Action 与 JSON](../CONTENT-ACTION-V2.md) | 数据含义、兼容格式和媒体分享 |
 | [剪贴板规则](../CLIPBOARD-RULES.md)、[通配符](../CLIPBOARD-WILDCARDS.md) | 规则配置与匹配用法 |
 | [网页动作](../WEBVIEW-ACTION.md)、[网页唤起应用](../WEBVIEW-APP-LINKS.md) | 网页及私有协议跳转行为 |

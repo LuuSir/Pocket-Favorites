@@ -1,5 +1,29 @@
 # Pocket Favorites verification
 
+## F-Droid submission / Release 1.0.1 — 2026-11-17
+
+用户授权采用 MIT，已公开 [LICENSE](../LICENSE) 和 en-US / zh-CN Fastlane title、summary、description、changelog。GitLab 账号为 LuuSir，fork 为 [LuuSir/fdroiddata](https://gitlab.com/LuuSir/fdroiddata)，metadata 路径 `metadata/com.example.resouretree.yml`。
+
+### Build and metadata evidence
+
+- 官方 fdroiddata checkout 基于 `194a3c26c77c21a3d9d721ea7145ed91069a2a26`，独立分支 `com.example.resouretree`。metadata 仅添加该应用，使用完整 source commit SHA、版本化 Binaries 和已验证的 AllowedAPKSigningKeys。
+- fdroidserver 2.4.5：readmeta / rewritemeta / lint 返回 0；官方 metadata JSON schema 与 LF 检查通过。Windows 环境另有 POSIX config permissions、apksigner 路径查找警告；实际 APK 已用 Android build-tools 单独验证。
+- 在独立公开源码副本中实际执行 Linux sed prebuild，移除镜像仓库与 Foojay JDK 下载插件；source scanner fatal errors 为 0，无 scanignore。
+- 原 v1.0 无签名重建只有 `META-INF/version-control-info.textproto` 内容不同，记录的是构建前 Git HEAD。因此发布 v1.0.1（versionCode 11），仅关闭 release build type 的 VCS revision 注入、更新版本及 About 文案，不改变 Room / JSON / 应用数据行为。
+- v1.0.1 的 Debug / Release / AndroidTest 编译和 168 项本地测试通过；lintDebug / lintRelease 各 0 errors、21 warnings。未再次操作手机界面或安装 1.0.1。
+- 再次从不含签名环境变量的子进程构建 unsigned APK，apksigcopier 仅复制公开签名后，与 upstream signed APK 逐字节一致。Windows / JBR 25.0.2 / Gradle 9.5.0 上通过；Linux F-Droid CI 待验证。
+- v1.0.1 APK：8,736,104 bytes，SHA256 `17c59e301070bef2a1375ff794b4b45fdaa3808a149491da7105e021bca1a0ef`，历史签名证书保持一致。
+
+### Submission status
+
+GitLab fork 已完成导入，尚未提交最终 metadata 分支及 MR。F-Droid 对新应用开发时长与收录条件的判断留给维护者；本项目首次提交为 2026-09-07，MR 将如实说明，不能提前宣称收录成功。
+
+### Environment and raw evidence
+
+原始记录位于 Git 忽略的 [results](../results/resourcetree/20261117-fdroid-submission-codex/)。下载源先查 sources-current.md；Python 校验工具在项目独立 venv 中从 TUNA 安装成功。GitLab 官方仓库、API 和 F-Droid scanner catalog 用于指定的提交任务，不更改全局代理或信任配置。WSL 仅用于执行隔离的 prebuild；未安装或启用 Docker，未修改系统 Python。GitLab 授权通过隐藏输入交给系统凭据库，Token 未写入项目或日志。
+
+后续操作见 [workflow](../workflows/fdroid.md)。
+
 ## Release 1.0 — 2026-11-16
 
 应用中文名改为「外置收藏夹」，英文名为 Pocket Favorites。新增「菜单 → 界面语言」：Follow system / 简体中文 / English，默认跟随系统。Android 13+ 使用 LocaleManager 与 localeConfig，Android 8–12 使用偏好保存与 Activity Configuration。README 中英文互链。
