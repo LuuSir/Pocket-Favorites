@@ -14,3 +14,7 @@
 | JSON schema | 导入导出协议；当前导出 v2，兼容导入 v1 |
 | Release | 非调试签名 APK；沿用历史证书以支持覆盖更新 |
 | Instrumentation | 运行在 Android 设备上的测试；数据核对使用只读 snapshot / compare |
+| Build metadata | F-Droid 的 YAML 构建配方，固定源码 commit、版本、构建步骤与更新检查 |
+| Reproducible build | 独立重建得到相同 APK；F-Droid 用于核验并沿用上游公开签名 |
+| Fastlane metadata | 上游源码中的应用商店介绍与 changelog，按 en-US / zh-CN 等 locale 分目录 |
+| Merge Request | GitLab 代码审查请求；提交 F-Droid MR 后仍需 CI 和维护者收录审核 |

@@ -16,11 +16,15 @@
 
 ### Submission status
 
-GitLab fork 已完成导入，尚未提交最终 metadata 分支及 MR。F-Droid 对新应用开发时长与收录条件的判断留给维护者；本项目首次提交为 2026-09-07，MR 将如实说明，不能提前宣称收录成功。
+- 已创建公开 [fork](https://gitlab.com/LuuSir/fdroiddata)，在不受保护的 `com.example.resouretree` 分支提交 metadata，commit `ddceadf019f47f338c0a9a7cdf92c35d2032f0ad`。
+- 已提交官方上游 [MR !57711 — New app: Pocket Favorites](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711)，状态 opened，目标 master。API 核对差异只新增 `metadata/com.example.resouretree.yml`，构建版本 1.0.1 / 11，固定源码 `c63290ee5bdf58fd3a1f1810649548b9a513311b`。
+- [Release v1.0.1](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.1) 已公开，APK 和 SHA256 已上传并核对服务端 digest。通过公开 GitHub release asset API 完整下载 8,736,104 bytes，SHA256 和 ZIP CRC 再次验证一致。
+- fork pipeline `3077070876` 和 [MR pipeline `3077089377`](https://gitlab.com/LuuSir/fdroiddata/-/pipelines/3077089377) 都在创建作业前失败。GraphQL 明确返回 `The pipeline failed due to the user not being verified.`；并非已观测到的 metadata / Linux build 失败。按 F-Droid 官方模板在 MR 中请求维护者触发上游 CI，未提供支付信息或进行手机验证。
+- F-Droid 对新应用开发时长与收录条件的判断留给维护者；首次源码提交为 2026-09-07，尚未满三个月，MR 如实说明作者真机使用，未虚构更多用户或提前宣称收录成功。后续限制见 [unsure.md](../unsure.md#u-002)。
 
 ### Environment and raw evidence
 
-原始记录位于 Git 忽略的 [results](../results/resourcetree/20261117-fdroid-submission-codex/)。下载源先查 sources-current.md；Python 校验工具在项目独立 venv 中从 TUNA 安装成功。GitLab 官方仓库、API 和 F-Droid scanner catalog 用于指定的提交任务，不更改全局代理或信任配置。WSL 仅用于执行隔离的 prebuild；未安装或启用 Docker，未修改系统 Python。GitLab 授权通过隐藏输入交给系统凭据库，Token 未写入项目或日志。
+原始记录位于 Git 忽略的 [results](../results/resourcetree/20261117-fdroid-submission-codex/)。下载源先查 sources-current.md；Python 校验工具在项目独立 venv 中从 TUNA 安装成功。GitLab 官方仓库、API 和 F-Droid scanner catalog 用于指定的提交任务，不更改全局代理或信任配置。Windows urllib 对 GitLab 发生过 TLS EOF，切换 requests 的复用 HTTPS 会话后完成 MR 创建，保留证书验证。GitHub 浏览器下载路径受现有路由影响：Windows TLS 失败，WSL curl 60 秒取得部分数据后超时；随后公开 GitHub asset API 完整下载成功。GitHub 路由沿用已授权的 Scholar 环境（网关终止该路径的 TLS），没有新增信任证书，也未关闭校验；本次成功仅限定该客户端、API 路径和附件。GitLab 授权通过隐藏输入交给系统凭据库，Token 未写入项目或日志。未安装或启用 Docker，未修改系统 Python。
 
 后续操作见 [workflow](../workflows/fdroid.md)。
 
