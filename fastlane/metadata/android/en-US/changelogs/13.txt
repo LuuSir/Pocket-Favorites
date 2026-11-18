@@ -1,0 +1,1 @@
+Switch GitHub and F-Droid to the same release certificate. Back up data before migrating from 1.0.2 or earlier.

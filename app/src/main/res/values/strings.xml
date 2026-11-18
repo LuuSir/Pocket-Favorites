@@ -2,7 +2,7 @@
     <string name="more">More</string>
     <string name="about">"About"</string>
     <string name="about_description">"Save and organize favorites locally.\n\nAll content stays on this device. Imports append to Home without overwriting existing items.\n\nCopy and open launches the selected app. Clipboard recognition depends on that app."</string>
-    <string name="about_title">"%1$s 1.0.2"</string>
+    <string name="about_title">"%1$s 1.0.3"</string>
     <string name="action_copy">"Copy text"</string>
     <string name="action_copy_launch">"Copy and open app"</string>
     <string name="action_failed">"%1$sAction failed: %2$s"</string>

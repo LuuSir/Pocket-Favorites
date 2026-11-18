@@ -1,5 +1,13 @@
 # Pocket Favorites verification
 
+## Shared release certificate and Android migration — 2026-11-18
+
+- 用户选择 GitHub 与 F-Droid 统一使用正式上游证书。包名为 `com.example.resouretree`，新证书 SHA-256 为 `847d2199dde6749649706f81e28b3e1cb1ad29308bd670a99c49cc7571236f35`。私钥和本机 DPAPI 密码文件仅保存在用户目录。发布脚本核验此指纹，F-Droid 通过 Binaries 和 AllowedAPKSigningKeys 验证同一个 GitHub APK。
+- 1.0.3 / 13 的干净 Release build、AndroidTest 编译及 168 项本地测试通过，Release lint 0 errors / 21 warnings。正式 APK 为 8,732,008 字节，SHA-256 `290e2c9d567c6a35ece3e77c1b01f03952ef39175edd48e105ef863c851d7150`。签名验证通过，签名块没有 AGP Dependency metadata。
+- Android 13 真机从 1.0 卸载并重装 1.0.3。卸载前以同签名临时 Instrumentation 导出数据库、偏好与私有文件，通过 ZIP CRC、SQLite integrity_check、foreign_key_check 和手机端隔离恢复演练。921 个收藏节点中没有媒体引用，仍备份了私有目录内两份未被引用的旧媒体。
+- 恢复后，921 个节点、收藏树与规则的完整摘要、Room schema v3 与迁移前一致。5 个偏好文件和 4 个私有文件逐字节一致，旧媒体包含在内。恢复了已授予的悬浮窗和通知权限，系统语言仍为跟随系统。已移除临时助手和测试 APK。真机界面留给用户操作。
+- 日志、手机完整备份与回退 APK 保存在 Git 忽略的本机 [results](../results/resourcetree/20261118-signing-migration-codex/) 目录。未将内容、媒体、私钥或密码提交到远端。旧版用户的操作区分有无媒体，见 [发布流程](../workflows/release.md)。
+
 ## F-Droid CI repair — 2026-11-18
 
 [Pipeline 3077393364](https://gitlab.com/fdroid/fdroiddata/-/pipelines/3077393364) 由维护者 linsui 在更新 MR 分支后触发，实际运行并失败。失败有两项：`fdroid rewritemeta` 要求长 Binaries URL 折行；`fdroid build` 的 gradlew-fdroid 只识别官方 Gradle distributionUrl，腾讯镜像 URL 导致 `No suitable gradle version found`，尚未进入 Gradle 编译。其余 schema / lint / source checks 均成功，APK check 因 build 失败而跳过。

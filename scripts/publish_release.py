@@ -21,7 +21,7 @@ import urllib.request
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-CERTIFICATE = "3afc7881c8be9742b3075ce0380b55d7338d86264bfba223f935cfe0aa586b4f"
+CERTIFICATE = "847d2199dde6749649706f81e28b3e1cb1ad29308bd670a99c49cc7571236f35"
 
 
 def run(command, **kwargs):
@@ -46,7 +46,7 @@ def verify_apk(apk, build_tools, tag):
     java = str(pathlib.Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")) if java_home else "java"
     signature = run([java, "-jar", str(build_tools / "lib/apksigner.jar"), "verify", "--print-certs", str(apk)])
     if f"certificate SHA-256 digest: {CERTIFICATE}" not in signature:
-        raise RuntimeError("APK signing certificate differs from existing releases")
+        raise RuntimeError("APK signing certificate differs from the current release certificate")
     return {"package": package[1], "versionCode": int(package[2]), "versionName": package[3],
             "sha256": hashlib.sha256(apk.read_bytes()).hexdigest(), "size": apk.stat().st_size}
 

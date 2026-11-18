@@ -1,4 +1,4 @@
-# Pocket Favorites · 外置收藏夹 1.0.2
+# Pocket Favorites · 外置收藏夹 1.0.3
 
 [简体中文](README.md) | **English**
 
@@ -6,7 +6,7 @@ Keep text, links, images, videos, and files from different apps in one local col
 
 ## Get started
 
-1. Download `PocketFavorites-v1.0.2.apk` from [Release 1.0.2](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.2). Existing ResourceTree installations can update in place with the same package ID and signing certificate. Version 1.0.2 uses a clean build for F-Droid reproducibility.
+1. Download `PocketFavorites-v1.0.3.apk` from [Release 1.0.3](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.3). If you have 1.0.2 or earlier, back up your data using the [signing migration instructions](workflows/release.md#从-102-或更早版本迁移) before uninstalling the old app and installing 1.0.3.
 2. Tap **＋ New** on Home to create a folder or item. Set its Content and choose the Action to run when tapped.
 3. Open **Menu → App language** and select **Follow system**, **简体中文**, or **English**. The default follows the system, with English as the fallback for other languages. Saved content and clipboard rules retain their original text.
 
@@ -47,4 +47,4 @@ Next steps focus on media collection and device compatibility. The Android packa
 
 Released under the [MIT License](LICENSE). F-Droid store descriptions are maintained in [fastlane/metadata/android](fastlane/metadata/android/).
 
-[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and has passed Linux reproducibility checks; APK signing is under review before maintainer acceptance. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).
+[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and uses the same release certificate as GitHub starting with 1.0.3 and is awaiting maintainer acceptance. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).
