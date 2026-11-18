@@ -8,6 +8,11 @@
 - 恢复后，921 个节点、收藏树与规则的完整摘要、Room schema v3 与迁移前一致。5 个偏好文件和 4 个私有文件逐字节一致，旧媒体包含在内。恢复了已授予的悬浮窗和通知权限，系统语言仍为跟随系统。已移除临时助手和测试 APK。真机界面留给用户操作。
 - 日志、手机完整备份与回退 APK 保存在 Git 忽略的本机 [results](../results/resourcetree/20261118-signing-migration-codex/) 目录。未将内容、媒体、私钥或密码提交到远端。旧版用户的操作区分有无媒体，见 [发布流程](../workflows/release.md)。
 
+
+[GitHub Release 1.0.3](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.3) 已公开。通过公开 GitHub asset API 下载完整 APK 并核对 SHA-256 与 ZIP CRC。手机已安装 APK 的 SHA-256 和该附件一致。已核实原悬浮窗和通知授权、系统语言及临时测试助手清理结果。
+
+[MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) 固定源码 `349ee1f05ca71f1e82ed43ad5fa4ec683ee1e2a0`，metadata commit `98ad61b7922633e3b3cdfc22f040f0203e998e75`。[F-Droid pipeline 3083958689](https://gitlab.com/LuuSir/fdroiddata/-/pipelines/3083958689) 9/9 通过。首次 runner 在 clone fdroidserver 时连接 gitlab.com:443 超时。重试后 Linux build 和 Binaries 复制签名验证成功，最终 check apk 接受 `CN=Pocket Favorites Release, O=LuuSir`。MR 保持开放，等待维护者收录审核。
+
 ## F-Droid CI repair — 2026-11-18
 
 [Pipeline 3077393364](https://gitlab.com/fdroid/fdroiddata/-/pipelines/3077393364) 由维护者 linsui 在更新 MR 分支后触发，实际运行并失败。失败有两项：`fdroid rewritemeta` 要求长 Binaries URL 折行；`fdroid build` 的 gradlew-fdroid 只识别官方 Gradle distributionUrl，腾讯镜像 URL 导致 `No suitable gradle version found`，尚未进入 Gradle 编译。其余 schema / lint / source checks 均成功，APK check 因 build 失败而跳过。

@@ -41,4 +41,4 @@ Debug APK 输出到 `app/build/outputs/apk/debug/app-debug.apk`。签名 Release
 
 本项目采用 [MIT License](LICENSE)。F-Droid 应用介绍位于 [fastlane/metadata/android](fastlane/metadata/android/)。
 
-已提交 [F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711)，1.0.3 起 GitHub 和 F-Droid 使用同一正式签名，提交仍在审核；目前尚未上架。验证结果见 [报告](reports/resourcetree.md)，维护步骤见 [流程](workflows/fdroid.md)。
+已提交 [F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711)，1.0.3 的统一正式签名已通过 F-Droid CI，提交仍在审核；目前尚未上架。验证结果见 [报告](reports/resourcetree.md)，维护步骤见 [流程](workflows/fdroid.md)。

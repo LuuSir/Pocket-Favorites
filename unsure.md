@@ -15,7 +15,8 @@
 - Status: Pending
 - 目标：1.0.3 起用同一正式发布证书覆盖 GitHub 和 F-Droid。
 - 已验证：正式签名 APK、关闭 Dependency metadata、168 项本地测试、Release lint 与一台 Android 13 真机的备份、重装和数据验证。
-- 剩余：将 1.0.3 固定到 [MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) 验证 Linux 可复现构建和 APK 检查，并由维护者完成审查。首次提交为 2026-09-07，开发时长由维护者判断。
+- 已验证：[Pipeline 3083958689](https://gitlab.com/LuuSir/fdroiddata/-/pipelines/3083958689) 9 项全部通过，含 Linux 可复现构建、正式证书和 APK 检查。
+- 剩余：由 F-Droid 维护者审核 [MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) 并收录。首次提交为 2026-09-07，开发时长由维护者判断。
 
 ## Verified
 

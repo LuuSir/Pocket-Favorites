@@ -47,4 +47,4 @@ Next steps focus on media collection and device compatibility. The Android packa
 
 Released under the [MIT License](LICENSE). F-Droid store descriptions are maintained in [fastlane/metadata/android](fastlane/metadata/android/).
 
-[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and uses the same release certificate as GitHub starting with 1.0.3 and is awaiting maintainer acceptance. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).
+[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and has passed CI for 1.0.3 with the same release certificate as GitHub and awaits maintainer acceptance. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).
