@@ -15,7 +15,7 @@
 ## Prepare and check
 
 1. 从 [fdroiddata](https://gitlab.com/fdroid/fdroiddata) fork 到自己的 GitLab 账号；本机在 `build/fdroiddata` 做独立 checkout，创建 `com.example.resouretree` 分支，保持 master 不变。
-2. 编写 `metadata/com.example.resouretree.yml`。使用官方 [Build Metadata Reference](https://f-droid.org/en/docs/Build_Metadata_Reference/)，固定完整 source commit SHA，`subdir: app`、Gradle release。`Binaries` 指向公开的版本化 APK，`AllowedAPKSigningKeys` 限定已有证书。
+2. 编写 `metadata/com.example.resouretree.yml`。使用官方 [Build Metadata Reference](https://f-droid.org/en/docs/Build_Metadata_Reference/)，固定完整 source commit SHA，`subdir: app`、Gradle release。需要沿用 upstream 签名时，`Binaries` 指向公开的版本化 APK，`AllowedAPKSigningKeys` 限定正式证书。先检查 certificate DN；Android Debug 证书被 check apk 拒收。若由 F-Droid 独立签名，应移除这两个字段，并明确两渠道不能相互覆盖。
 3. prebuild 只对 F-Droid 构建副本移除 Aliyun / Huawei Maven mirrors 和 Foojay JDK resolver，并把腾讯 Gradle distributionUrl 改为 `https://services.gradle.org/distributions/`；保留 Gradle 9.5.0、distributionSha256Sum 和官方 Google Maven / Maven Central / Gradle Plugin Portal。gradlew-fdroid 只识别官方 distributionUrl，镜像 URL 会导致 `No suitable gradle version found`。不要用 scanignore 绕过扫描。
 4. 从 CI job trace 核对 fdroidserver source commit 与 ruamel.yaml 版本，在项目独立 venv 中安装匹配工具。2026-11-18 复现使用 `fc2c86473e66a44fc641f403c338a8b2cccfad88` 与 `ruamel.yaml==0.18.10`，依赖从 TUNA 安装；PyPI fdroidserver 2.4.5 不是该 CI 源码版本。然后在 fdroiddata checkout 中依次执行：
 
@@ -42,4 +42,6 @@
 | 镜像或 Foojay 被 scanner 标记 | 核对 prebuild 是否在正确 subdir 执行，不跳过扫描 |
 | APK 只有 Git 信息不同 | 核对 release 的 vcsInfo 设置，并发布新的版本；不改写已发布标签和 APK |
 | Linux 构建或 reproducibility 失败 | 阅读 CI job trace，比较 APK entry；Windows 比较通过不能代替 Linux CI |
+| APK extra signing block | 在 android.dependenciesInfo 关闭 includeInApk / includeInBundle，解析实际签名块确认没有 0x504b4453 |
+| Android Debug certificate | 需要确认渠道签名策略；不能通过更名字段或跳过 check apk 规避，换签名前验证完整数据迁移 |
 | pipeline 无法运行 | 记录 GitLab 返回的限制，保留 MR 并请求 F-Droid 维护者触发 |

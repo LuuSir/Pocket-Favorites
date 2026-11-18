@@ -17,6 +17,18 @@
 
 随后在全新 Windows 源码目录关闭 Kotlin / KSP incremental 与 build cache，原 1.0.1 unsigned APK 与 Linux CI 产物逐字节一致：8,727,912 bytes，SHA256 `619e39fc5c7c4c57cff25e93526e32aa9b1d482f9029e460cb4526d25f202c68`。确认原发布包使用了旧增量编译输出，Windows 原缓存下 signed / unsigned 的一致性不足以覆盖 clean Linux build。1.0.2 / 12 已完成干净构建：Debug / Release / AndroidTest 编译、168 项本地测试全部通过；Debug / Release lint 各 0 errors、21 warnings。AndroidTest 未在设备运行，本轮没有安装或改动真机数据。正式 APK 8,736,104 bytes，SHA256 `136bc05ca0017f8439b2cf9b64da61e0793fd4130ce1813687dde406726196e2`，包名、非调试属性、ZIP 和历史签名证书通过验证。旧 Release 保留；新版本将用于下一轮 CI 比较。
 
+### Final APK gate and signing decision
+
+[1.0.2 Release](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.2) 已公开，原签名和旧 Release 保留；公开 API 完整下载的大小、SHA256、ZIP CRC 与本地一致。源码 tag 固定为 `aadd471839d1da33b00dc582cab1703807f5c28b`，fdroiddata metadata commit 为 `0eebd673f54ad303d7f7419963414af517522d0c`。
+
+[Pipeline 3082347377](https://gitlab.com/LuuSir/fdroiddata/-/pipelines/3082347377) 为 8 success / 1 failed。Linux build、公开 Binaries 签名复制比较已成功，日志明确为 `compared built binary to supplied reference binary successfully`；最终 check apk 拒绝 upstream signed APK 的 Dependency metadata signing block 和 `C=US, O=Android, CN=Android Debug` 证书。未宣称整条 pipeline 通过。
+
+已在上游 Gradle DSL 中加入 `dependenciesInfo { includeInApk = false; includeInBundle = false }`，assembleRelease 返回 0，并实际解析重建签名块确认不再含 `0x504b4453`；已发布的 1.0.2 附件不变。此配置修复准备供后续 F-Droid 构建使用。
+
+签名分发策略待用户确认：建议 GitHub 保持原签名，F-Droid 移除 Binaries / AllowedAPKSigningKeys 后使用自身签名。两渠道不能直接相互覆盖；现有用户可留在 GitHub 渠道。另一个选择是统一迁移正式证书，也会影响旧安装覆盖更新。本轮未生成新密钥、换签名或卸载手机应用。
+
+切换渠道的数据验收必须包括媒体：DocumentStore 将选定文件复制到 app-private `files/media`，JSON 仅保存相对路径，单独导出 JSON 不能备份媒体。任何卸载前需要先实现或完成可验证的 JSON 与媒体备份及恢复；当前用户只需选择分发策略，不应据此卸载应用。见 [remaining work](../unsure.md#u-002)。
+
 原始日志与本地校验位于 [results](../results/resourcetree/20261118-fdroid-ci-codex/)。Python 工具依赖从 TUNA 安装，CI 工具源码和 pipeline 日志使用官方 GitLab；保留 TLS 校验，没有修改全局代理或证书。Gradle 官方 URL 仅用于 F-Droid 构建副本的版本识别与下载，本机项目仍保留既有镜像配置。后续方法见 [workflow](../workflows/fdroid.md)。
 
 ## F-Droid submission / Release 1.0.1 — 2026-11-17

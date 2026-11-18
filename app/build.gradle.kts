@@ -47,6 +47,10 @@ android {
     buildFeatures {
         compose = true
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
     bundle { language { enableSplit = false } }
     testOptions {
         unitTests.isIncludeAndroidResources = true
