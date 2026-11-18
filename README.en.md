@@ -1,4 +1,4 @@
-# Pocket Favorites · 外置收藏夹 1.0.1
+# Pocket Favorites · 外置收藏夹 1.0.2
 
 [简体中文](README.md) | **English**
 
@@ -6,7 +6,7 @@ Keep text, links, images, videos, and files from different apps in one local col
 
 ## Get started
 
-1. Download `PocketFavorites-v1.0.1.apk` from [Release 1.0.1](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.1). Existing ResourceTree installations can update in place with the same package ID and signing certificate. Version 1.0.1 prepares reproducible builds for F-Droid.
+1. Download `PocketFavorites-v1.0.2.apk` from [Release 1.0.2](https://github.com/LuuSir/Pocket-Favorites/releases/tag/v1.0.2). Existing ResourceTree installations can update in place with the same package ID and signing certificate. Version 1.0.2 uses a clean build for F-Droid reproducibility.
 2. Tap **＋ New** on Home to create a folder or item. Set its Content and choose the Action to run when tapped.
 3. Open **Menu → App language** and select **Follow system**, **简体中文**, or **English**. The default follows the system, with English as the fallback for other languages. Saved content and clipboard rules retain their original text.
 
@@ -47,4 +47,4 @@ Next steps focus on media collection and device compatibility. The Android packa
 
 Released under the [MIT License](LICENSE). F-Droid store descriptions are maintained in [fastlane/metadata/android](fastlane/metadata/android/).
 
-[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and awaits maintainer CI and review. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).
+[F-Droid MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711) has been submitted and is undergoing reproducible-build checks and awaits maintainer review. The app is not listed on F-Droid yet. See the [verification report](reports/resourcetree.md) and [F-Droid workflow](workflows/fdroid.md).

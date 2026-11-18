@@ -10,7 +10,7 @@
    ```
 
    保存结果中的 `snapshotNodes`、`snapshotTree`、`snapshotRules`、`snapshotSchema` 到本地忽略目录 `results/resourcetree/<YYYYMMDD>-<description>-<operator>/`；operator 默认为实际操作者缩写，用户使用 `lsf`。需要已安装同签名测试包；快照不读取资源正文到日志。
-3. 配置本机环境变量 `RESOURCETREE_SIGNING_STORE`、`RESOURCETREE_SIGNING_STORE_PASSWORD`、`RESOURCETREE_SIGNING_ALIAS`、`RESOURCETREE_SIGNING_KEY_PASSWORD`，然后运行 `:app:assembleRelease :app:lintRelease`。历史安装沿用原证书，不能随意换密钥；不将密钥或密码提交到仓库。
+3. 配置本机环境变量 `RESOURCETREE_SIGNING_STORE`、`RESOURCETREE_SIGNING_STORE_PASSWORD`、`RESOURCETREE_SIGNING_ALIAS`、`RESOURCETREE_SIGNING_KEY_PASSWORD`，然后运行 `:app:clean :app:assembleRelease :app:lintRelease --no-build-cache -Pkotlin.incremental=false -Pksp.incremental=false`。必须从干净的编译输出生成正式 APK；旧增量缓存可能改变 Compose stability 代码，导致 APK 无法复现。历史安装沿用原证书，不能随意换密钥；不将密钥或密码提交到仓库。
 4. 将已签名 APK 复制到 `build/releases/PocketFavorites-v<版本>.apk`，执行 `publish_release.py --check-only`。必须通过 ZIP、签名、版本和非调试校验。
 5. 使用 `adb install -r` 覆盖安装正式包。再次运行步骤 2 的检查，将模式改为 `compare`，并使用 `-e snapshotNodes <原值>` 等方式传入全部四个原始字段。只在 `OK (1 test)` 且无失败时认定数据一致；不完整参数会失败。
 6. 核对 `git status --short`，仅提交相关源码、测试与文档；Word 稿件、数据库快照、截图和日志留在忽略目录。提交后推送 main，创建同一提交上的版本标签并推送标签。

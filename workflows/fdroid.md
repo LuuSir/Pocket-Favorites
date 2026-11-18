@@ -16,8 +16,8 @@
 
 1. 从 [fdroiddata](https://gitlab.com/fdroid/fdroiddata) fork 到自己的 GitLab 账号；本机在 `build/fdroiddata` 做独立 checkout，创建 `com.example.resouretree` 分支，保持 master 不变。
 2. 编写 `metadata/com.example.resouretree.yml`。使用官方 [Build Metadata Reference](https://f-droid.org/en/docs/Build_Metadata_Reference/)，固定完整 source commit SHA，`subdir: app`、Gradle release。`Binaries` 指向公开的版本化 APK，`AllowedAPKSigningKeys` 限定已有证书。
-3. prebuild 只对 F-Droid 构建副本移除 Aliyun / Huawei Maven mirrors 和 Foojay JDK resolver，保留原版本和官方 Google Maven / Maven Central / Gradle Plugin Portal。不要用 scanignore 绕过扫描。
-4. 在 fdroiddata checkout 中依次执行：
+3. prebuild 只对 F-Droid 构建副本移除 Aliyun / Huawei Maven mirrors 和 Foojay JDK resolver，并把腾讯 Gradle distributionUrl 改为 `https://services.gradle.org/distributions/`；保留 Gradle 9.5.0、distributionSha256Sum 和官方 Google Maven / Maven Central / Gradle Plugin Portal。gradlew-fdroid 只识别官方 distributionUrl，镜像 URL 会导致 `No suitable gradle version found`。不要用 scanignore 绕过扫描。
+4. 从 CI job trace 核对 fdroidserver source commit 与 ruamel.yaml 版本，在项目独立 venv 中安装匹配工具。2026-11-18 复现使用 `fc2c86473e66a44fc641f403c338a8b2cccfad88` 与 `ruamel.yaml==0.18.10`，依赖从 TUNA 安装；PyPI fdroidserver 2.4.5 不是该 CI 源码版本。然后在 fdroiddata checkout 中依次执行：
 
    ```text
    fdroid readmeta
@@ -25,7 +25,7 @@
    fdroid lint com.example.resouretree
    ```
 
-   用 `schemas/metadata.json` 验证 YAML，并确认 metadata 保存为 LF。Windows 运行校验工具时的 POSIX permissions / apksigner 查找警告需与应用 metadata 问题区分；实际签名由 Android build-tools 单独验证。
+   用 `schemas/metadata.json` 验证 YAML，并确认 metadata 保存为 LF。在 Windows 上 rewritemeta 后将 CRLF 转为 LF，再重复执行一次并比较规范化后的 bytes 应无变化；保留 formatter 对长 Binaries URL 的折行格式。Windows 运行校验工具时的 POSIX permissions / apksigner 查找警告需与应用 metadata 问题区分；实际签名由 Android build-tools 单独验证。
 5. 使用 upstream signed APK 和不配置签名的重建 APK 做 apksigcopier 比较。期望复制公开签名后 SHA256 完全一致。Release build type 使用 `vcsInfo.include = false`，避免构建 checkout 的 Git revision 被写入 APK；不需要向 F-Droid 提供私钥。
 6. 提交 metadata 单个文件，push 到公开 fork 的独立分支。检查 GitLab pipeline；若账号被要求付费或提供信用卡以运行 CI，按 F-Droid 的模板在 MR 说明，请维护者触发，不设置支付信息。
 7. 按官方 Default MR template 提交 `New app: Pocket Favorites`，目标 `fdroid/fdroiddata:master`。仅勾选已实际完成的检查。说明项目开发时间与用户使用情况，等待维护者审核；MR 创建不等于已收录到 F-Droid。
@@ -37,7 +37,8 @@
 | 问题 | 检查入口 |
 | --- | --- |
 | 无 GitLab 授权 | 本机运行 authorize_gitlab.ps1，核对用户名与 Token scope / expiry |
-| metadata 检查失败 | 官方 schema、rewritemeta 输出和 lint 日志 |
+| metadata 检查失败 | 官方 schema、rewritemeta 输出和 lint 日志；核对 CI 的 fdroidserver commit、ruamel.yaml 版本与 LF |
+| No suitable gradle version found | 核对 prebuild 后 distributionUrl 为官方地址，Gradle 版本和 distributionSha256Sum 不变 |
 | 镜像或 Foojay 被 scanner 标记 | 核对 prebuild 是否在正确 subdir 执行，不跳过扫描 |
 | APK 只有 Git 信息不同 | 核对 release 的 vcsInfo 设置，并发布新的版本；不改写已发布标签和 APK |
 | Linux 构建或 reproducibility 失败 | 阅读 CI job trace，比较 APK entry；Windows 比较通过不能代替 Linux CI |

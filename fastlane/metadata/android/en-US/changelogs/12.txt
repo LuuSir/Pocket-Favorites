@@ -1,0 +1,1 @@
+Use a clean release build for byte-identical F-Droid rebuilds. Existing package ID, signing key, and saved data stay compatible.

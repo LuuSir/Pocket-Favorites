@@ -1,5 +1,24 @@
 # Pocket Favorites verification
 
+## F-Droid CI repair — 2026-11-18
+
+[Pipeline 3077393364](https://gitlab.com/fdroid/fdroiddata/-/pipelines/3077393364) 由维护者 linsui 在更新 MR 分支后触发，实际运行并失败。失败有两项：`fdroid rewritemeta` 要求长 Binaries URL 折行；`fdroid build` 的 gradlew-fdroid 只识别官方 Gradle distributionUrl，腾讯镜像 URL 导致 `No suitable gradle version found`，尚未进入 Gradle 编译。其余 schema / lint / source checks 均成功，APK check 因 build 失败而跳过。
+
+### Repair and local checks
+
+- 从维护者更新后的 `382d8adbdb3e2aaf71e518c2c1e211a9f33069a5` 创建新的本地修复分支，没有覆盖旧本地分支或改写远端历史。仅修改 metadata，commit `819b3007c59264681f46bd54d12b092d0431d24f` 已正常 push 到同一 [MR !57711](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/57711)。
+- 用 CI 相同 fdroidserver source commit `fc2c86473e66a44fc641f403c338a8b2cccfad88` 与 `ruamel.yaml==0.18.10` 校验；原本 PyPI 2.4.5 / ruamel.yaml 0.17.21 的结果与该 CI formatter 有差异。项目 venv 已对齐源码和依赖，pip check、readmeta、rewritemeta、lint、官方 JSON schema 全部通过。重复 rewritemeta 后的 LF bytes 不变；长 URL 后的空格为官方 formatter 输出。
+- prebuild 在 F-Droid 源码副本将 wrapper URL 从腾讯镜像改成 services.gradle.org。实际 WSL bash 运行两条 prebuild 成功，官方版本解析函数从无法识别变为 `9.5.0`；Gradle 版本和原 SHA256 `553c78f50dafcd54d65b9a444649057857469edf836431389695608536d6b746` 保持不变。
+- 源码固定为原 `c63290ee5bdf58fd3a1f1810649548b9a513311b`，Binaries URL、签名证书和 1.0.1 / 11 不变。第一轮修复未修改应用源码、已发布 APK 或本机数据；后续 clean-build 版本单独验证。
+
+### New CI
+
+[Pipeline 3082312584](https://gitlab.com/LuuSir/fdroiddata/-/pipelines/3082312584) 已自动启动，未再次受到账号验证限制。CI 的 rewritemeta、lint、schema、source code checks 已成功；Linux build 已识别并运行 Gradle 9.5.0。Linux build 成功生成 APK，但 Binaries 比较失败；差异只在 classes2.dex 与关联 baseline.prof。按方法比较发现 9 个 Compose stability 相关生成方法不同。
+
+随后在全新 Windows 源码目录关闭 Kotlin / KSP incremental 与 build cache，原 1.0.1 unsigned APK 与 Linux CI 产物逐字节一致：8,727,912 bytes，SHA256 `619e39fc5c7c4c57cff25e93526e32aa9b1d482f9029e460cb4526d25f202c68`。确认原发布包使用了旧增量编译输出，Windows 原缓存下 signed / unsigned 的一致性不足以覆盖 clean Linux build。1.0.2 / 12 已完成干净构建：Debug / Release / AndroidTest 编译、168 项本地测试全部通过；Debug / Release lint 各 0 errors、21 warnings。AndroidTest 未在设备运行，本轮没有安装或改动真机数据。正式 APK 8,736,104 bytes，SHA256 `136bc05ca0017f8439b2cf9b64da61e0793fd4130ce1813687dde406726196e2`，包名、非调试属性、ZIP 和历史签名证书通过验证。旧 Release 保留；新版本将用于下一轮 CI 比较。
+
+原始日志与本地校验位于 [results](../results/resourcetree/20261118-fdroid-ci-codex/)。Python 工具依赖从 TUNA 安装，CI 工具源码和 pipeline 日志使用官方 GitLab；保留 TLS 校验，没有修改全局代理或证书。Gradle 官方 URL 仅用于 F-Droid 构建副本的版本识别与下载，本机项目仍保留既有镜像配置。后续方法见 [workflow](../workflows/fdroid.md)。
+
 ## F-Droid submission / Release 1.0.1 — 2026-11-17
 
 用户授权采用 MIT，已公开 [LICENSE](../LICENSE) 和 en-US / zh-CN Fastlane title、summary、description、changelog。GitLab 账号为 LuuSir，fork 为 [LuuSir/fdroiddata](https://gitlab.com/LuuSir/fdroiddata)，metadata 路径 `metadata/com.example.resouretree.yml`。
